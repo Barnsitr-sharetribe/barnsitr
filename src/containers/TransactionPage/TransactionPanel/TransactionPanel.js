@@ -135,7 +135,12 @@ export class TransactionPanelComponent extends Component {
   }
 
   onMessageSubmit(values, form) {
-    const message = values.message ? values.message.trim() : null;
+    const message = values.mediaMessage
+      ? values.mediaMessage
+      : values.message
+      ? values.message.trim()
+      : null;
+
     const { transactionId, onSendMessage, config } = this.props;
 
     if (!message) {
@@ -366,6 +371,7 @@ export class TransactionPanelComponent extends Component {
                 onFocus={this.onSendMessageFormFocus}
                 onBlur={this.onSendMessageFormBlur}
                 onSubmit={this.onMessageSubmit}
+                txId={this.props.transactionId.uuid}
               />
             ) : (
               <div className={css.sendingMessageNotAllowed}>
