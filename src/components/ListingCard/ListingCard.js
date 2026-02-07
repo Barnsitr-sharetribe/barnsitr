@@ -21,6 +21,7 @@ import {
   NamedLink,
   ResponsiveImage,
   ListingCardThumbnail,
+  FavoriteButton,
 } from '../../components';
 
 import css from './ListingCard.module.css';
@@ -136,6 +137,11 @@ const ListingCardImage = props => {
         image={firstImage}
         variants={variants}
         sizes={renderSizes}
+      />
+      <FavoriteButton
+        listingId={currentListing.id}
+        listingAuthor={currentListing.author}
+        isVisible={true}
       />
     </AspectRatioWrapper>
   ) : (

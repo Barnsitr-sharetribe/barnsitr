@@ -126,3 +126,5 @@ const profileSettingsPageSlice = createSlice({
 
 export const { clearUpdatedForm } = profileSettingsPageSlice.actions;
 export default profileSettingsPageSlice.reducer;
+
+export const profileUpdateInProgressSelector = state => state.ProfileSettingsPage.updateInProgress;

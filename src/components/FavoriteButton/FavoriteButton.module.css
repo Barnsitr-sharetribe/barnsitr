@@ -1,0 +1,49 @@
+.root {
+  all: unset;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: max-content;
+  height: max-content;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px;
+}
+
+.icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  fill: var(--colorGrey50);
+  fill-opacity: 0.05;
+  transition: all 0.2s ease-in-out;
+  & path {
+    stroke: var(--colorWhite);
+    stroke-width: 70px;
+  }
+}
+
+.bookmarked {
+  fill: var(--marketplaceColor) !important;
+  fill-opacity: 1 !important;
+  & path {
+    stroke: var(--marketplaceColor);
+  }
+}
+
+@media (hover) {
+  /* Smartphones and touchscreens */
+  .root {
+    &:hover {
+      scale: 1.2;
+    }
+  }
+}

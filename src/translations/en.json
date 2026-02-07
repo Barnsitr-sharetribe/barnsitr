@@ -1416,5 +1416,10 @@
   "UserNav.accountSettings": "Account settings",
   "UserNav.profileSettings": "Profile settings",
   "UserNav.screenreader.userNav": "User profile navigation",
-  "UserNav.yourListings": "Your listings"
+  "UserNav.yourListings": "Your listings",
+  "FavoriteListingsPage.loadingFavoriteListings": "Loading favorites...",
+  "FavoriteListingsPage.noResults": "You haven't added anything to favorites.",
+  "FavoriteListingsPage.queryError": "Query failed. Please try again.",
+  "FavoriteListingsPage.title": "View your favorite listings",
+  "FavoriteListingsPage.youHaveListings": "You have {count} favorite {count, plural, one {listing} other {listings}}"
 }

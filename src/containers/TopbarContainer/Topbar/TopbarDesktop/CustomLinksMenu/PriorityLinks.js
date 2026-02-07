@@ -4,9 +4,10 @@ import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../../../util/reactIntl';
 
-import { ExternalLink, NamedLink } from '../../../../../components';
+import { ExternalLink, IconsCollection, NamedLink } from '../../../../../components';
 
 import css from './PriorityLinks.module.css';
+import { HEART } from '../../../../../components/IconsCollection/IconsCollection';
 
 /**
  * Create component that shows only a single "Post a new listing" link.
@@ -44,7 +45,9 @@ const PriorityLink = ({ linkConfig }) => {
     const { name, params, to } = route || {};
     return (
       <NamedLink name={name} params={params} to={to} className={classes} id={id}>
-        <span className={css.priorityLinkLabel}>{text}</span>
+        <span className={css.priorityLinkLabel}>
+          {text === 'Wishlist' ? <IconsCollection type={HEART} /> : text}
+        </span>
       </NamedLink>
     );
   }

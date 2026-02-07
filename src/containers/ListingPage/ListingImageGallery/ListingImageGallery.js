@@ -10,6 +10,7 @@ import {
   IconClose,
   IconArrowHead,
   ResponsiveImage,
+  FavoriteButton,
 } from '../../../components';
 
 // Copied directly from
@@ -64,7 +65,7 @@ const getFirstImageAspectRatio = (firstImage, scaledVariant) => {
 const ListingImageGallery = props => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const intl = useIntl();
-  const { rootClassName, className, images, imageVariants, thumbnailVariants } = props;
+  const { rootClassName, className, images, imageVariants, thumbnailVariants, listing } = props;
   const thumbVariants = thumbnailVariants || imageVariants;
   // imageVariants are scaled variants.
   const { aspectWidth, aspectHeight } = getFirstImageAspectRatio(images?.[0], imageVariants[0]);
@@ -156,12 +157,15 @@ const ListingImageGallery = props => {
         <IconClose rootClassName={css.closeIcon} />
       </Button>
     ) : (
-      <button className={css.openFullscreen} onClick={onClick}>
-        <FormattedMessage
-          id="ListingImageGallery.viewImagesButton"
-          values={{ count: images.length }}
-        />
-      </button>
+      <>
+        <FavoriteButton listingId={listing.id} listingAuthor={listing.author} isVisible={true} />
+        <button className={css.openFullscreen} onClick={onClick}>
+          <FormattedMessage
+            id="ListingImageGallery.viewImagesButton"
+            values={{ count: images.length }}
+          />
+        </button>
+      </>
     );
   };
 
