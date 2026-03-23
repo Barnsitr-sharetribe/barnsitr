@@ -14,10 +14,101 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+- [fix] StripePaymentForm: fix styleguide example.
+  [#810](https://github.com/sharetribe/web-template/pull/810)
+- [add] Update moment-timezone to v0.6.1 (to take newest update from IANA time zone db)
+  [#809](https://github.com/sharetribe/web-template/pull/809)
+
+## [v10.14.1] 2026-03-18
+
+- [fix] Fix SectionListings not loading correctly when a section has an anchor link
+  ID.[#807](https://github.com/sharetribe/web-template/pull/807)
+- [add] Add loading spinner to CheckoutPage.
+  [#802](https://github.com/sharetribe/web-template/pull/802)
+- [fix] CheckoutPage: fix the initialState not initializing stripeCustomerFetchError.
+  [#799](https://github.com/sharetribe/web-template/pull/799)
+- [fix] Improve tests (avoid warnings and other issues)
+  [#801](https://github.com/sharetribe/web-template/pull/801)
+- [add] Add currently available translations for DE, ES, FR.
+  [#804](https://github.com/sharetribe/web-template/pull/804)
+
+  [v10.14.1]: https://github.com/sharetribe/web-template/compare/v10.14.0...v10.14.1
+
+## [v10.14.0] 2026-03-10
+
+- [add] Support `helpText` from listing and user field asset configs. Displayed below form fields
+  via new HelpText component.[#778](https://github.com/sharetribe/web-template/pull/778)
+- [add] Add featured listings section type (SectionListings.js) that fetches and displays listings
+  in a carousel layout. [#712](https://github.com/sharetribe/web-template/pull/712)
+- [fix] Modify listing card price classes
+  [#796](https://github.com/sharetribe/web-template/pull/796)
+
+  [v10.14.0]: https://github.com/sharetribe/web-template/compare/v10.13.0...v10.14.0
+
+## [v10.13.0] 2026-02-26
+
+- [change] Hides listing description input/display when option is toggled off in Console > Listing
+  types > Default listing fields [#767](https://github.com/sharetribe/web-template/pull/767)
+- [change] ListingCard: refactor and add aria-label attribute to the component.
+  [#787](https://github.com/sharetribe/web-template/pull/787)
+- [fix] FieldSelectIntegerRange: fix aria-attributes.
+  [#786](https://github.com/sharetribe/web-template/pull/786)
+- [add] Add currently available translations for DE, ES, FR.
+  [#790](https://github.com/sharetribe/web-template/pull/790)
+
+  [v10.13.0]: https://github.com/sharetribe/web-template/compare/v10.12.1...v10.13.0
+
+## [v10.12.1] 2026-02-24
+
+- [fix] Fix submitting inquiry without transaction fields
+  [#788](https://github.com/sharetribe/web-template/pull/788)
+- [add] Prevent saving customer fields when provider is making an offer
+  [#785](https://github.com/sharetribe/web-template/pull/785)
+- [fix] Remove location heading for listing types with no location
+  [#783](https://github.com/sharetribe/web-template/pull/783)
+- [fix] Fix boolean support for transaction fields
+  [#782](https://github.com/sharetribe/web-template/pull/782)
+- [add] Fix a Marketplace text [#784](https://github.com/sharetribe/web-template/pull/784)
+- [add] Add currently available translations for DE, ES, FR.
+  [#781](https://github.com/sharetribe/web-template/pull/781)
+
+  [v10.12.0]: https://github.com/sharetribe/web-template/compare/v10.12.0...v10.12.1
+
+## [v10.12.0] 2026-02-19
+
+- [add] Add transaction fields based on Console configuration
+
+  This PR prepares the codebase for using transaction field configurations that will be a part of
+  the listing type asset. Operators can define transaction fields per listing type.
+
+  [#737](https://github.com/sharetribe/web-template/pull/737)
+
+  [v10.12.0]: https://github.com/sharetribe/web-template/compare/v10.11.0...v10.12.0
+
+## [v10.11.0] 2026-02-12
+
+- [add] Add AGENTS.md file to provide context for LLMs.
+  [#765](https://github.com/sharetribe/web-template/pull/765)
+- [fix] Routes.js: fix a bug with hash selector. (CSS.escape was not used correctly.)
+  [#774](https://github.com/sharetribe/web-template/pull/774)
+- [fix] SearchPage.shared.js: fix a bug with keywords search type. (SortBy doesn't pick relevance
+  option when keywords search is active.)
+  [#772](https://github.com/sharetribe/web-template/pull/772)
+- [change] SearchCTA/FilterDateRange: tune scroll behaviour.
+  [#771](https://github.com/sharetribe/web-template/pull/771)
+- [fix] Routes.js: document.querySelector must have valid CSS id.
+  [#773](https://github.com/sharetribe/web-template/pull/773)
+- [fix] richText.js: fix a bug with break chars configuration. Old comma rule caused text flow
+  issues. [#770](https://github.com/sharetribe/web-template/pull/770)
+- [fix] TopbarMobileMenu: logged out user saw bullet points in custom links.
+  [#769](https://github.com/sharetribe/web-template/pull/769)
 - [fix] ListingPage.duck.js: fix a bug where inquiry is not allowed for customer role on OFFER flow.
   [#768](https://github.com/sharetribe/web-template/pull/768)
+
 - [fix] EditListingPage.duck.js: fix a bug where exception cache was not updated correctly.
   [#766](https://github.com/sharetribe/web-template/pull/766)
+
+  [v10.11.0]: https://github.com/sharetribe/web-template/compare/v10.10.1...v10.11.0
 
 ## [v10.10.1] 2026-02-04
 
