@@ -18,6 +18,8 @@ import TopbarSearchForm from '../TopbarSearchForm/TopbarSearchForm';
 import CustomLinksMenu from './CustomLinksMenu/CustomLinksMenu';
 
 import css from './TopbarDesktop.module.css';
+import { getCurrentUserTypeRoles } from '../../../../util/userHelpers';
+import { getProfileListingRedirectProps } from '../../../ProfileSettingsPage/ProfileSettingsPage';
 
 const SignupLink = () => {
   return (
@@ -56,7 +58,16 @@ const InboxLink = ({ notificationCount, inboxTab }) => {
   );
 };
 
-const ProfileMenu = ({ currentPage, currentUser, onLogout, showManageListingsLink, intl }) => {
+const ProfileMenu = ({
+  currentPage,
+  currentUser,
+  onLogout,
+  showManageListingsLink,
+  intl,
+  config,
+}) => {
+  const currentUserRole = getCurrentUserTypeRoles(config, currentUser);
+
   const currentPageClass = page => {
     const isAccountSettingsPage =
       page === 'AccountSettingsPage' && ACCOUNT_SETTINGS_PAGES.includes(currentPage);
@@ -85,15 +96,28 @@ const ProfileMenu = ({ currentPage, currentUser, onLogout, showManageListingsLin
             </NamedLink>
           </MenuItem>
         ) : null}
-        <MenuItem key="ProfileSettingsPage">
-          <NamedLink
-            className={classNames(css.menuLink, currentPageClass('ProfileSettingsPage'))}
-            name="ProfileSettingsPage"
-          >
-            <span className={css.menuItemBorder} />
-            <FormattedMessage id="TopbarDesktop.profileSettingsLink" />
-          </NamedLink>
-        </MenuItem>
+        {currentUserRole.provider ? (
+          <MenuItem key="EditListingsPage">
+            <NamedLink
+              className={classNames(css.menuLink, currentPageClass('EditListingsPage'))}
+              name="EditListingsPage"
+              {...getProfileListingRedirectProps(currentUser.attributes.profile.publicData)}
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.manageProfileLink" />
+            </NamedLink>
+          </MenuItem>
+        ) : (
+          <MenuItem key="ProfileSettingsPage">
+            <NamedLink
+              className={classNames(css.menuLink, currentPageClass('ProfileSettingsPage'))}
+              name="ProfileSettingsPage"
+            >
+              <span className={css.menuItemBorder} />
+              <FormattedMessage id="TopbarDesktop.profileSettingsLink" />
+            </NamedLink>
+          </MenuItem>
+        )}
         <MenuItem key="AccountSettingsPage">
           <NamedLink
             className={classNames(css.menuLink, currentPageClass('AccountSettingsPage'))}
@@ -177,6 +201,7 @@ const TopbarDesktop = props => {
       onLogout={onLogout}
       showManageListingsLink={showCreateListingsLink}
       intl={intl}
+      config={config}
     />
   ) : null;
 

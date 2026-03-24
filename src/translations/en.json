@@ -1429,5 +1429,7 @@
   "FavoriteListingsPage.noResults": "You haven't added anything to favorites.",
   "FavoriteListingsPage.queryError": "Query failed. Please try again.",
   "FavoriteListingsPage.title": "View your favorite listings",
-  "FavoriteListingsPage.youHaveListings": "You have {count} favorite {count, plural, one {listing} other {listings}}"
+  "FavoriteListingsPage.youHaveListings": "You have {count} favorite {count, plural, one {listing} other {listings}}",
+  "TopbarDesktop.manageProfileLink": "Manage profile",
+  "TopbarMobileMenu.manageProfileLink": "Manage profile"
 }

@@ -24,6 +24,11 @@ import { H3, ListingLink } from '../../../../components';
 import ErrorMessage from './ErrorMessage';
 import EditListingDetailsForm from './EditListingDetailsForm';
 import css from './EditListingDetailsPanel.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { currentUserTypeSelector } from '../../../../ducks/user.duck';
+import { onImageUploadHandler } from '../../../ProfileSettingsPage/ProfileSettingsPage';
+import { updateProfile, uploadImage } from '../../../ProfileSettingsPage/ProfileSettingsPage.duck';
+import { ensureCurrentUser } from '../../../../util/data';
 
 /**
  * Get listing configuration. For existing listings, it is stored to publicData.
@@ -237,7 +242,8 @@ const getInitialValues = (
   listingTypes,
   listingFields,
   listingCategories,
-  categoryKey
+  categoryKey,
+  currentUser
 ) => {
   const { description, title, publicData, privateData } = props?.listing?.attributes || {};
   // If details panel is accessed via URL like my.domain.com/l/draft/00000000-0000-0000-0000-000000000000/new/details?listingType=sell-bicycles,
@@ -248,6 +254,10 @@ const getInitialValues = (
   const listingType = publicData?.listingType || preselectedListingType;
 
   const nestedCategories = pickCategoryFields(publicData, categoryKey, 1, listingCategories);
+
+  const user = ensureCurrentUser(currentUser);
+  const { firstName, lastName, displayName, publicData: userPublicData } = user?.attributes.profile;
+
   // Initial values for the form
   return {
     title,
@@ -269,6 +279,9 @@ const getInitialValues = (
       nestedCategories,
       listingFields
     ),
+    firstName,
+    lastName,
+    displayName,
   };
 };
 
@@ -292,6 +305,16 @@ const getInitialValues = (
  * @returns {JSX.Element}
  */
 const EditListingDetailsPanel = props => {
+  const { currentUser } = useSelector(state => state.user);
+  const currentUserType = useSelector(currentUserTypeSelector);
+  const dispatch = useDispatch();
+  const {
+    image,
+    uploadImageError,
+    uploadInProgress,
+    updateInProgress: imageUpdateInProgress,
+    updateProfileError,
+  } = useSelector(state => state.ProfileSettingsPage);
   const {
     className,
     rootClassName,
@@ -347,7 +370,8 @@ const EditListingDetailsPanel = props => {
     listingTypes,
     listingFields,
     listingCategories,
-    categoryKey
+    categoryKey,
+    currentUser
   );
 
   const noListingTypesSet = listingTypes?.length === 0;
@@ -355,6 +379,14 @@ const EditListingDetailsPanel = props => {
   const canShowEditListingDetailsForm =
     hasListingTypesSet && (!hasExistingListingType || hasValidExistingListingType);
   const isPublished = listing?.id && state !== LISTING_STATE_DRAFT;
+
+  const onImageUpload = data => dispatch(uploadImage(data));
+  const onUpdateProfile = data => dispatch(updateProfile(data));
+  const profileImageId = currentUser.profileImage ? currentUser.profileImage.id : null;
+  const profileImage = image || { imageId: profileImageId };
+  const { userFields, userTypes = [] } = config.user;
+  const userTypeConfig = userTypes.find(config => config.userType === currentUserType);
+  const publicUserFields = userFields.filter(uf => uf.scope === 'public');
 
   const panelHeadingProps = isPublished
     ? {
@@ -392,8 +424,36 @@ const EditListingDetailsPanel = props => {
               listingType,
               transactionProcessAlias,
               unitType,
+              displayName,
+              firstName,
+              lastName,
               ...rest
             } = values;
+
+            if (!profileImage.imageId) {
+              alert('Please upload a profile image before moving forward.');
+              return;
+            }
+
+            const profile = {
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              displayName: displayName.trim(),
+              bio: description,
+              publicData: {
+                profileTitle: title.trim(),
+                listingState: state || 'draft',
+              },
+            };
+
+            const uploadedImage = image;
+            // Update profileImage only if file system has been accessed
+            const updatedValues =
+              uploadedImage && uploadedImage.imageId && uploadedImage.file
+                ? { ...profile, profileImageId: uploadedImage.imageId }
+                : profile;
+
+            onUpdateProfile(updatedValues);
 
             const nestedCategories = pickCategoryFields(rest, categoryKey, 1, listingCategories);
             // Remove old categories by explicitly saving null for them.
@@ -455,7 +515,15 @@ const EditListingDetailsPanel = props => {
           updated={panelUpdated}
           updateInProgress={updateInProgress}
           fetchErrors={errors}
-          autoFocus
+          currentUser={currentUser}
+          profileImage={profileImage}
+          uploadImageError={uploadImageError}
+          uploadInProgress={uploadInProgress}
+          imageUpdateInProgress={imageUpdateInProgress}
+          updateProfileError={updateProfileError}
+          onImageUpload={e => onImageUploadHandler(e, onImageUpload)}
+          userTypeConfig={userTypeConfig}
+          userFields={publicUserFields}
         />
       ) : (
         <ErrorMessage

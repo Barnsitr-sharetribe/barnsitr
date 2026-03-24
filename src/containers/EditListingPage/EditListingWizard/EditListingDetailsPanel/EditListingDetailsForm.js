@@ -23,9 +23,16 @@ import {
   FieldTextInput,
   Heading,
   CustomExtendedDataField,
+  IconSpinner,
+  ImageFromFile,
+  Avatar,
+  H4,
 } from '../../../../components';
 // Import modules from this directory
 import css from './EditListingDetailsForm.module.css';
+import { ensureCurrentUser } from '../../../../util/data.js';
+import { ACCEPT_IMAGES, DisplayNameMaybe, UPLOAD_CHANGE_DELAY } from '../../../ProfileSettingsPage/ProfileSettingsForm/ProfileSettingsForm.js';
+import { isUploadImageOverLimitError } from '../../../../util/errors.js';
 
 const TITLE_MAX_LENGTH = 60;
 
@@ -338,11 +345,35 @@ const EditListingDetailsForm = props => (
         listingFieldsConfig = [],
         listingCurrency,
         values,
+        currentUser,
+        profileImage,
+        uploadImageError,
+        uploadInProgress,
+        onImageUpload,
+        userTypeConfig,
       } = formRenderProps;
 
       const intl = useIntl();
       const { listingType, transactionProcessAlias, unitType } = values;
       const [allCategoriesChosen, setAllCategoriesChosen] = useState(false);
+      const [uploadDelay, setUploadDelay] = useState(false);
+
+      // Upload delay is additional time window where Avatar is added to the DOM,
+      // but not yet visible (time to load image URL from srcset)
+      useEffect(() => {
+        let timeoutId;
+        if (uploadInProgress === false && profileImage?.imageId && !!profileImage.file) {
+          setUploadDelay(true);
+          timeoutId = window.setTimeout(() => {
+            setUploadDelay(false);
+          }, UPLOAD_CHANGE_DELAY);
+        }
+        return () => {
+          if (timeoutId) {
+            window.clearTimeout(timeoutId);
+          }
+        };
+      }, [uploadInProgress, profileImage?.imageId]);
 
       const titleRequiredMessage = intl.formatMessage({
         id: 'EditListingDetailsForm.titleRequired',
@@ -353,6 +384,32 @@ const EditListingDetailsForm = props => (
           maxLength: TITLE_MAX_LENGTH,
         }
       );
+
+      // First name
+      const firstNameLabel = intl.formatMessage({
+        id: 'ProfileSettingsForm.firstNameLabel',
+      });
+      const firstNamePlaceholder = intl.formatMessage({
+        id: 'ProfileSettingsForm.firstNamePlaceholder',
+      });
+      const firstNameRequiredMessage = intl.formatMessage({
+        id: 'ProfileSettingsForm.firstNameRequired',
+      });
+      const firstNameRequired = required(firstNameRequiredMessage);
+
+      // Last name
+      const lastNameLabel = intl.formatMessage({
+        id: 'ProfileSettingsForm.lastNameLabel',
+      });
+      const lastNamePlaceholder = intl.formatMessage({
+        id: 'ProfileSettingsForm.lastNamePlaceholder',
+      });
+      const lastNameRequiredMessage = intl.formatMessage({
+        id: 'ProfileSettingsForm.lastNameRequired',
+      });
+      const lastNameRequired = required(lastNameRequiredMessage);
+
+      const user = ensureCurrentUser(currentUser);
 
       // Determine the currency to validate:
       // - If editing an existing listing, use the listing's currency.
@@ -392,11 +449,174 @@ const EditListingDetailsForm = props => (
         disabled ||
         submitInProgress ||
         !hasMandatoryListingTypeData ||
-        !isCompatibleCurrency;
+        !isCompatibleCurrency ||
+        uploadInProgress;
+
+      const hasUploadError = !!uploadImageError && !uploadInProgress;
+      const errorClasses = classNames({ [css.avatarUploadError]: hasUploadError });
+      const transientUserProfileImage = profileImage.uploadedImage || user.profileImage;
+      const transientUser = { ...user, profileImage: transientUserProfileImage };
+
+      //images
+      const uploadingOverlay =
+        uploadInProgress || uploadDelay ? (
+          <div className={css.uploadingImageOverlay}>
+            <IconSpinner />
+          </div>
+        ) : null;
+
+      // Ensure that file exists if imageFromFile is used
+      const fileExists = !!profileImage.file;
+      const fileUploadInProgress = uploadInProgress && fileExists;
+      const delayAfterUpload = profileImage.imageId && uploadDelay;
+      const imageFromFile =
+        fileExists && (fileUploadInProgress || delayAfterUpload) ? (
+          <ImageFromFile
+            id={profileImage.id}
+            className={errorClasses}
+            rootClassName={css.uploadingImage}
+            aspectWidth={1}
+            aspectHeight={1}
+            file={profileImage.file}
+          >
+            {uploadingOverlay}
+          </ImageFromFile>
+        ) : null;
+      // Avatar is rendered in hidden during the upload delay
+      // Upload delay smoothes image change process:
+      // responsive img has time to load srcset stuff before it is shown to user.
+      const avatarClasses = classNames(errorClasses, css.avatar, {
+        [css.avatarInvisible]: uploadDelay,
+      });
+      const avatarComponent =
+        !fileUploadInProgress && profileImage.imageId ? (
+          <Avatar
+            className={avatarClasses}
+            renderSizes="(max-width: 767px) 96px, 240px"
+            user={transientUser}
+            disableProfileLink
+          />
+        ) : null;
+
+      const chooseAvatarLabel =
+        profileImage.imageId || fileUploadInProgress ? (
+          <div className={css.avatarContainer}>
+            {imageFromFile}
+            {avatarComponent}
+            <div className={css.changeAvatar}>
+              <FormattedMessage id="ProfileSettingsForm.changeAvatar" />
+            </div>
+          </div>
+        ) : (
+          <div className={css.avatarPlaceholder}>
+            <div className={css.avatarPlaceholderText}>
+              <FormattedMessage id="ProfileSettingsForm.addYourProfilePicture" />
+            </div>
+            <div className={css.avatarPlaceholderTextMobile}>
+              <FormattedMessage id="ProfileSettingsForm.addYourProfilePictureMobile" />
+            </div>
+          </div>
+        );
+      //images
 
       return (
         <Form className={classes} onSubmit={handleSubmit}>
           <ErrorMessage fetchErrors={fetchErrors} />
+
+          <div className={css.sectionContainer}>
+            <H4 as="h2" className={css.sectionTitle}>
+              <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
+            </H4>
+            <Field
+              accept={ACCEPT_IMAGES}
+              id="profileImage"
+              name="profileImage"
+              label={chooseAvatarLabel}
+              type="file"
+              form={null}
+              uploadImageError={uploadImageError}
+              disabled={uploadInProgress}
+            >
+              {fieldProps => {
+                const { accept, id, input, label, disabled, uploadImageError } = fieldProps;
+                const { name, type } = input;
+                const onChange = e => {
+                  const file = e.target.files[0];
+                  formApi.change(`profileImage`, file);
+                  formApi.blur(`profileImage`);
+                  if (file != null) {
+                    const tempId = `${file.name}_${Date.now()}`;
+                    onImageUpload({ id: tempId, file });
+                  }
+                };
+
+                let error = null;
+
+                if (isUploadImageOverLimitError(uploadImageError)) {
+                  error = (
+                    <div className={css.error}>
+                      <FormattedMessage id="ProfileSettingsForm.imageUploadFailedFileTooLarge" />
+                    </div>
+                  );
+                } else if (uploadImageError) {
+                  error = (
+                    <div className={css.error}>
+                      <FormattedMessage id="ProfileSettingsForm.imageUploadFailed" />
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className={css.uploadAvatarWrapper}>
+                    <label className={css.label} htmlFor={id}>
+                      {label}
+                    </label>
+                    <input
+                      accept={accept}
+                      id={id}
+                      name={name}
+                      className={css.uploadAvatarInput}
+                      disabled={disabled}
+                      onChange={onChange}
+                      type={type}
+                    />
+                    {error}
+                  </div>
+                );
+              }}
+            </Field>
+            <div className={css.tip}>
+              <FormattedMessage id="ProfileSettingsForm.tip" />
+            </div>
+            <div className={css.fileInfo}>
+              <FormattedMessage id="ProfileSettingsForm.fileInfo" />
+            </div>
+          </div>
+
+          <div className={css.nameContainer}>
+            <FieldTextInput
+              className={css.firstName}
+              type="text"
+              id="firstName"
+              name="firstName"
+              label={firstNameLabel}
+              placeholder={firstNamePlaceholder}
+              validate={firstNameRequired}
+            />
+            <FieldTextInput
+              className={css.lastName}
+              type="text"
+              id="lastName"
+              name="lastName"
+              label={lastNameLabel}
+              placeholder={lastNamePlaceholder}
+              validate={lastNameRequired}
+            />
+          </div>
+
+          <div className={css.displayNameContainer}>
+            <DisplayNameMaybe userTypeConfig={userTypeConfig} intl={intl} hideHeading />
+          </div>
 
           <FieldSelectListingType
             name="listingType"
@@ -432,7 +652,7 @@ const EditListingDetailsForm = props => (
               })}
               maxLength={TITLE_MAX_LENGTH}
               validate={composeValidators(required(titleRequiredMessage), maxLength60Message)}
-              autoFocus={autoFocus}
+              // autoFocus={autoFocus}
             />
           )}
 

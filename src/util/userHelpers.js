@@ -261,7 +261,7 @@ export const getCurrentUserTypeRoles = (config, currentUser) => {
   return (
     currentUserTypeConfig?.roles || {
       customer: true,
-      provider: true,
+      provider: false,
     }
   );
 };

@@ -257,6 +257,7 @@ const TopbarComponent = props => {
       customLinks={customLinks}
       showCreateListingsLink={showCreateListingsLink}
       inboxTab={topbarInboxTab}
+      config={config}
     />
   );
 

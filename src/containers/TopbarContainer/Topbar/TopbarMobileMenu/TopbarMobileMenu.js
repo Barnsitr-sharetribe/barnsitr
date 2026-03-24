@@ -18,6 +18,8 @@ import {
 } from '../../../../components';
 
 import css from './TopbarMobileMenu.module.css';
+import { getCurrentUserTypeRoles } from '../../../../util/userHelpers';
+import { getProfileListingRedirectProps } from '../../../ProfileSettingsPage/ProfileSettingsPage';
 
 const CustomLinkComponent = ({ linkConfig, currentPage }) => {
   const { group, text, type, href, route } = linkConfig;
@@ -81,9 +83,11 @@ const TopbarMobileMenu = props => {
     customLinks,
     onLogout,
     showCreateListingsLink,
+    config,
   } = props;
 
   const user = ensureCurrentUser(currentUser);
+  const currentUserRole = getCurrentUserTypeRoles(config, user);
 
   const extraLinks = customLinks.map((linkConfig, index) => {
     return (
@@ -181,11 +185,22 @@ const TopbarMobileMenu = props => {
             </NamedLink>
           </li>
           {manageListingsLinkMaybe}
-          <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
-            <NamedLink name="ProfileSettingsPage">
-              <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
-            </NamedLink>
-          </li>
+          {currentUserRole.provider ? (
+            <li className={classNames(css.navigationLink, currentPageClass('EditListingsPage'))}>
+              <NamedLink
+                name="EditListingsPage"
+                {...getProfileListingRedirectProps(user.attributes.profile.publicData)}
+              >
+                <FormattedMessage id="TopbarMobileMenu.manageProfileLink" />
+              </NamedLink>
+            </li>
+          ) : (
+            <li className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}>
+              <NamedLink name="ProfileSettingsPage">
+                <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
+              </NamedLink>
+            </li>
+          )}
           <li className={classNames(css.navigationLink, currentPageClass('AccountSettingsPage'))}>
             <NamedLink name="AccountSettingsPage">
               <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />

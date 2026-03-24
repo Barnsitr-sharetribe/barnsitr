@@ -25,6 +25,7 @@ import {
   fetchStripeAccount,
 } from '../../ducks/stripeConnectAccount.duck';
 import { fetchCurrentUser } from '../../ducks/user.duck';
+import { updateProfile } from '../ProfileSettingsPage/ProfileSettingsPage.duck';
 
 const { UUID } = sdkTypes;
 
@@ -184,6 +185,9 @@ export const createListingDraftThunk = createAsyncThunk(
       .then(response => {
         dispatch(addMarketplaceEntities(response));
         const listingId = response.data.data.id;
+
+        dispatch(updateProfile({ publicData: { profileListingId: listingId.uuid } }));
+
         // If stockUpdate info is passed through, update stock
         return updateStockOfListingMaybe(listingId, stockUpdate, dispatch).then(() => response);
       })
@@ -266,6 +270,7 @@ const publishListingPayloadCreator = ({ listingId }, { dispatch, rejectWithValue
   return sdk.ownListings
     .publishDraft({ id: listingId }, { expand: true })
     .then(response => {
+      dispatch(updateProfile({ publicData: { listingState: 'published' } }));
       // Add the created listing to the marketplace data
       dispatch(addMarketplaceEntities(response));
       return response;

@@ -5,9 +5,10 @@ import { connect } from 'react-redux';
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
-import { PROFILE_PAGE_PENDING_APPROVAL_VARIANT } from '../../util/urlHelpers';
+import { createSlug, PROFILE_PAGE_PENDING_APPROVAL_VARIANT } from '../../util/urlHelpers';
 import { ensureCurrentUser } from '../../util/data';
 import {
+  getCurrentUserTypeRoles,
   initialValuesForUserFields,
   isUserAuthorized,
   pickUserFieldsData,
@@ -15,7 +16,7 @@ import {
 } from '../../util/userHelpers';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
+import { H3, Page, UserNav, NamedLink, LayoutSingleColumn, NamedRedirect } from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
@@ -25,7 +26,29 @@ import ProfileSettingsForm from './ProfileSettingsForm/ProfileSettingsForm';
 import { updateProfile, uploadImage } from './ProfileSettingsPage.duck';
 import css from './ProfileSettingsPage.module.css';
 
-const onImageUploadHandler = (values, fn) => {
+export const draftId = '00000000-0000-0000-0000-000000000000';
+
+export const getProfileListingRedirectProps = publicData => {
+  const { profileTitle, profileListingId, listingState } = publicData;
+  const redirectProps = profileListingId
+    ? {
+        name: 'EditListingPage',
+        params: {
+          id: profileListingId,
+          slug: createSlug(profileTitle),
+          tab: 'details',
+          type: listingState === 'draft' ? 'draft' : 'edit',
+        },
+      }
+    : {
+        name: 'EditListingPage',
+        params: { slug: 'draft', id: draftId, type: 'new', tab: 'details' },
+      };
+
+  return redirectProps;
+};
+
+export const onImageUploadHandler = (values, fn) => {
   const { id, imageId, file } = values;
   if (file) {
     fn({ id, imageId, file });
@@ -84,6 +107,7 @@ export const ProfileSettingsPageComponent = props => {
     uploadInProgress,
   } = props;
 
+  const currentUserRole = getCurrentUserTypeRoles(config, currentUser);
   const { userFields, userTypes = [] } = config.user;
   const publicUserFields = userFields.filter(uf => uf.scope === 'public');
 
@@ -158,6 +182,10 @@ export const ProfileSettingsPageComponent = props => {
   const title = intl.formatMessage({ id: 'ProfileSettingsPage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+
+  if (currentUserRole.provider) {
+    return <NamedRedirect {...getProfileListingRedirectProps(publicData)} />;
+  }
 
   return (
     <Page className={css.root} title={title} scrollingDisabled={scrollingDisabled}>
