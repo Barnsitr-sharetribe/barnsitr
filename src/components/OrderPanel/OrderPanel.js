@@ -36,7 +36,14 @@ import {
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 
-import { ModalInMobile, PrimaryButton, AvatarSmall, H1, H2 } from '../../components';
+import {
+  ModalInMobile,
+  PrimaryButton,
+  AvatarSmall,
+  H1,
+  H2,
+  SecondaryButton,
+} from '../../components';
 import PriceVariantPicker from './PriceVariantPicker/PriceVariantPicker';
 import SubmitFinePrint from './SubmitFinePrint/SubmitFinePrint';
 
@@ -305,6 +312,7 @@ const OrderPanel = props => {
     fetchLineItemsError,
     payoutDetailsWarning,
     showListingImage,
+    fromTxPage,
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
@@ -460,7 +468,7 @@ const OrderPanel = props => {
         />
 
         <div className={css.author}>
-          <AvatarSmall user={author} className={css.providerAvatar} />
+          <AvatarSmall user={author} className={css.providerAvatar} disableProfileLink />
           <span className={css.providerNameLinked}>
             <FormattedMessage id="OrderPanel.author" values={{ name: authorLink }} />
           </span>
@@ -517,6 +525,8 @@ const OrderPanel = props => {
             onFetchTimeSlots={onFetchTimeSlots}
             timeZone={timeZone}
             finePrintComponent={SubmitFinePrint}
+            onContactUser={onContactUser}
+            fromTxPage={fromTxPage}
             {...priceVariantsMaybe}
             {...sharedProps}
           />
@@ -575,32 +585,39 @@ const OrderPanel = props => {
             <FormattedMessage id="OrderPanel.closedListingButtonText" />
           </div>
         ) : (
-          <PrimaryButton
-            id={ORDER_PANEL_SUBMIT_BUTTON_ID}
-            onClick={handleSubmit(
-              isOwnListing,
-              isClosed,
-              showInquiryForm || showNegotiationForm,
-              onSubmit,
-              history,
-              location
+          <div className={css.buttonContainer}>
+            {!fromTxPage && (
+              <SecondaryButton type="button" onClick={onContactUser}>
+                <FormattedMessage id="OrderPanel.contactToBook" />
+              </SecondaryButton>
             )}
-            disabled={isOutOfStock}
-          >
-            {isBooking ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
-            ) : isOutOfStock ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
-            ) : isPurchase ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
-            ) : showNegotiationForm ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageMakeOffer" />
-            ) : showRequestQuoteForm ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageRequestAQuote" />
-            ) : (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
-            )}
-          </PrimaryButton>
+            <PrimaryButton
+              id={ORDER_PANEL_SUBMIT_BUTTON_ID}
+              onClick={handleSubmit(
+                isOwnListing,
+                isClosed,
+                showInquiryForm || showNegotiationForm,
+                onSubmit,
+                history,
+                location
+              )}
+              disabled={isOutOfStock}
+            >
+              {isBooking ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
+              ) : isOutOfStock ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
+              ) : isPurchase ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
+              ) : showNegotiationForm ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageMakeOffer" />
+              ) : showRequestQuoteForm ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageRequestAQuote" />
+              ) : (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
+              )}
+            </PrimaryButton>
+          </div>
         )}
       </div>
     </div>

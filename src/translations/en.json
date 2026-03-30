@@ -1432,5 +1432,12 @@
   "FavoriteListingsPage.title": "View your favorite listings",
   "FavoriteListingsPage.youHaveListings": "You have {count} favorite {count, plural, one {listing} other {listings}}",
   "TopbarDesktop.manageProfileLink": "Manage profile",
-  "TopbarMobileMenu.manageProfileLink": "Manage profile"
+  "TopbarMobileMenu.manageProfileLink": "Manage profile",
+  "BookingDatesForm.address": "Job location",
+  "BookingDatesForm.addressPlaceholder": "Enter the job location",
+  "BookingDatesForm.addressRequired": "Please enter the job location",
+  "BookingDatesForm.addressNotRecognized": "The address was not recognized. Please check the address and try again.",
+  "FetchLineItemsError.distanceError": "The provider is not available at this location. Please try a different address.",
+  "OrderPanel.contactToBook": "Contact",
+  "BookingDatesForm.contactToBook": "Contact"
 }

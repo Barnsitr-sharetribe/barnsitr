@@ -380,3 +380,8 @@ export const storableError = err => {
     apiErrors,
   };
 };
+
+/**
+ * Check if fetch line items failed because the customer's location is outside the provider's service area.
+ */
+export const isDistanceError = error => error?.name === 'DistanceError';

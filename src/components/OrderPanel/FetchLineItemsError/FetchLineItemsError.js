@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { FormattedMessage } from '../../../util/reactIntl';
-import { isProviderCommissionBiggerThanMinPrice } from '../../../util/errors';
+import { isProviderCommissionBiggerThanMinPrice, isDistanceError } from '../../../util/errors';
 
 import css from './FetchLineItemsError.module.css';
 
@@ -20,6 +20,10 @@ const FetchLineItemsError = props => {
   return hasError && isProviderCommissionBiggerThanMinPrice(error) ? (
     <span className={css.error}>
       <FormattedMessage id="FetchLineItemsError.providerCommissionBiggerThanMinPrice" />
+    </span>
+  ) : hasError && isDistanceError(error) ? (
+    <span className={css.error}>
+      <FormattedMessage id="FetchLineItemsError.distanceError" />
     </span>
   ) : hasError ? (
     <span className={css.error}>

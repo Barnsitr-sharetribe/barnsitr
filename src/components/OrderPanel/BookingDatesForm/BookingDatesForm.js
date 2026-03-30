@@ -4,7 +4,14 @@ import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
-import { required, bookingDatesRequired, composeValidators } from '../../../util/validators';
+import {
+  required,
+  bookingDatesRequired,
+  composeValidators,
+  autocompleteSearchRequired,
+  autocompletePlaceSelected,
+} from '../../../util/validators';
+import { isDistanceError } from '../../../util/errors';
 import {
   getStartOf,
   addTime,
@@ -21,13 +28,22 @@ import { LINE_ITEM_DAY, propTypes } from '../../../util/types';
 import { timeSlotsPerDate } from '../../../util/generators';
 import { BOOKING_PROCESS_NAME } from '../../../transactions/transaction';
 
-import { Form, PrimaryButton, FieldDateRangePicker, FieldSelect, H6 } from '../../../components';
+import {
+  Form,
+  PrimaryButton,
+  FieldDateRangePicker,
+  FieldSelect,
+  H6,
+  FieldLocationAutocompleteInput,
+  SecondaryButton,
+} from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
 
 import FetchLineItemsError from '../FetchLineItemsError/FetchLineItemsError.js';
 
 import css from './BookingDatesForm.module.css';
+import { identity } from '../../../containers/EditListingPage/EditListingWizard/EditListingLocationPanel/EditListingLocationForm.js';
 
 const TODAY = new Date();
 
@@ -345,7 +361,7 @@ const calculateLineItems = (
   onFetchTransactionLineItems,
   seatsEnabled
 ) => formValues => {
-  const { startDate, endDate, priceVariantName, seats } = formValues?.values || {};
+  const { startDate, endDate, priceVariantName, seats, location } = formValues?.values || {};
 
   const priceVariantMaybe = priceVariantName ? { priceVariantName } : {};
   const seatCount = seats ? parseInt(seats, 10) : 1;
@@ -355,6 +371,7 @@ const calculateLineItems = (
     bookingEnd: endDate,
     ...priceVariantMaybe,
     ...(seatsEnabled && { seats: seatCount }),
+    location: location?.selectedPlace,
   };
 
   if (startDate && endDate && !fetchLineItemsInProgress) {
@@ -619,6 +636,8 @@ export const BookingDatesForm = props => {
           onFetchTimeSlots,
           form: formApi,
           finePrintComponent: FinePrint,
+          onContactUser,
+          fromTxPage,
         } = formRenderProps;
         const { startDate, endDate } = values?.bookingDates ? values.bookingDates : {};
         const priceVariantName = values?.priceVariantName || null;
@@ -628,6 +647,13 @@ export const BookingDatesForm = props => {
         });
         const endDateErrorMessage = intl.formatMessage({
           id: 'FieldDateRangeInput.invalidEndDate',
+        });
+
+        const addressRequiredMessage = intl.formatMessage({
+          id: 'BookingDatesForm.addressRequired',
+        });
+        const addressNotRecognizedMessage = intl.formatMessage({
+          id: 'BookingDatesForm.addressNotRecognized',
         });
 
         // This is the place to collect breakdown estimation data.
@@ -643,7 +669,10 @@ export const BookingDatesForm = props => {
               }
             : null;
         const showEstimatedBreakdown =
-          breakdownData && lineItems && !fetchLineItemsInProgress && !fetchLineItemsError;
+          breakdownData &&
+          lineItems &&
+          !fetchLineItemsInProgress &&
+          (!fetchLineItemsError || isDistanceError(fetchLineItemsError));
 
         const dateFormatOptions = {
           weekday: 'short',
@@ -697,7 +726,8 @@ export const BookingDatesForm = props => {
         );
 
         const isDaily = lineItemUnitType === LINE_ITEM_DAY;
-        const submitDisabled = isPriceVariationsInUse && !isPublishedListing;
+        const submitDisabled =
+          (isPriceVariationsInUse && !isPublishedListing) || !!fetchLineItemsError;
 
         return (
           <Form onSubmit={handleSubmit} className={classes} enforcePagePreloadFor="CheckoutPage">
@@ -789,6 +819,7 @@ export const BookingDatesForm = props => {
                     startDate,
                     endDate,
                     seats: seatsEnabled ? 1 : undefined,
+                    location: values?.location,
                   },
                 });
               }}
@@ -824,6 +855,41 @@ export const BookingDatesForm = props => {
               </FieldSelect>
             ) : null}
 
+            {showEstimatedBreakdown && (
+              <FieldLocationAutocompleteInput
+                rootClassName={css.locationAddress}
+                inputClassName={css.locationAutocompleteInput}
+                iconClassName={css.locationAutocompleteInputIcon}
+                predictionsClassName={css.predictionsRoot}
+                validClassName={css.validLocation}
+                name="location"
+                id={`${formId}.location`}
+                label={intl.formatMessage({ id: 'BookingDatesForm.address' })}
+                placeholder={intl.formatMessage({
+                  id: 'BookingDatesForm.addressPlaceholder',
+                })}
+                useDefaultPredictions={false}
+                format={identity}
+                valueFromForm={values.location}
+                validate={composeValidators(
+                  autocompleteSearchRequired(addressRequiredMessage),
+                  autocompletePlaceSelected(addressNotRecognizedMessage)
+                )}
+                onChange={values => {
+                  if (!values?.selectedPlace) return;
+                  onHandleFetchLineItems({
+                    values: {
+                      priceVariantName,
+                      startDate,
+                      endDate,
+                      seats: seatsEnabled ? 1 : undefined,
+                      location: values,
+                    },
+                  });
+                }}
+              />
+            )}
+
             {showEstimatedBreakdown ? (
               <div className={css.priceBreakdownContainer}>
                 <H6 as="h3" className={css.bookingBreakdownTitle}>
@@ -852,6 +918,14 @@ export const BookingDatesForm = props => {
               </PrimaryButton>
             </div>
             <FinePrint payoutDetailsWarning={payoutDetailsWarning} isOwnListing={isOwnListing} />
+
+            {!fromTxPage && (
+              <div className={css.contactButton}>
+                <SecondaryButton type="button" onClick={onContactUser}>
+                  <FormattedMessage id="BookingDatesForm.contactToBook" />
+                </SecondaryButton>
+              </div>
+            )}
           </Form>
         );
       }}

@@ -22,7 +22,7 @@ import {
 // Import modules from this directory
 import css from './EditListingLocationForm.module.css';
 
-const identity = v => v;
+export const identity = v => v;
 
 /**
  * The EditListingLocationForm component.

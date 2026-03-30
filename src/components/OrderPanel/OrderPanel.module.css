@@ -278,3 +278,13 @@
     padding: 0;
   }
 }
+
+.buttonContainer {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+
+  & > * {
+    flex: 1;
+  }
+}
