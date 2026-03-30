@@ -56,7 +56,8 @@ const ListingCardImage = props => {
     lazyLoadImage,
   } = props;
 
-  const firstImage = listing?.images?.[0] || null;
+  const firstImage = listing.author.profileImage;
+  // const firstImage = listing?.images?.[0] || null;
   const variants = firstImage
     ? Object.keys(firstImage?.attributes?.variants).filter(k => k.startsWith(variantPrefix))
     : [];
@@ -79,8 +80,8 @@ const ListingCardImage = props => {
         sizes={renderSizes}
       />
       <FavoriteButton
-        listingId={currentListing.id}
-        listingAuthor={currentListing.author}
+        listingId={listing.id}
+        listingAuthor={listing.author}
         isVisible={true}
       />
     </AspectRatioWrapper>

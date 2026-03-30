@@ -52,7 +52,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
         page: 1,
         minStock: 1,
         stockMode: 'match-undefined',
-        include: ['images', 'author'],
+        include: ['images', 'author', 'author.profileImage'],
         'fields.listing': [
           'title',
           'geolocation',

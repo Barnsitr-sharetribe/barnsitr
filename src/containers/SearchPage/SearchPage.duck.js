@@ -417,7 +417,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       ...listingTypeVariantMaybe,
       page,
       perPage: RESULT_PAGE_SIZE,
-      include: ['author', 'images'],
+      include: ['author', 'images', 'author.profileImage'],
       'fields.listing': [
         'title',
         'geolocation',
