@@ -14,10 +14,23 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+## [v10.15.0] 2026-03-25
+
+- [fix] Fix too-big font-size in mobile h4 heading and some too large margins.
+  [#806](https://github.com/sharetribe/web-template/pull/806)
 - [fix] StripePaymentForm: fix styleguide example.
   [#810](https://github.com/sharetribe/web-template/pull/810)
 - [add] Update moment-timezone to v0.6.1 (to take newest update from IANA time zone db)
   [#809](https://github.com/sharetribe/web-template/pull/809)
+- [add] Add support for merging listing search sort config with default configs
+  [760](https://github.com/sharetribe/web-template/pull/760)
+- [add] Support custom metadata fields for listings and users. Metadata fields are
+  operator-controlled (editable only via Console or Integration API) and can be used for search
+  filtering and sorting. [#779](https://github.com/sharetribe/web-template/pull/779)
+- [add] Add support for sorting listings on the search page using custom numeric fields.
+  [#803](https://github.com/sharetribe/web-template/pull/803)
+
+  [v10.15.0]: https://github.com/sharetribe/web-template/compare/v10.14.1...v10.15.0
 
 ## [v10.14.1] 2026-03-18
 
