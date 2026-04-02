@@ -4,31 +4,122 @@
   /* Layout */
   display: flex;
   flex-direction: column;
+  height: 100%;
+
+  background-color: #f9f8f3;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 
   /* Remove link's hover effect */
   &:hover {
     text-decoration: none;
   }
-}
-
-.aspectRatioWrapper {
-  transition: var(--transitionStyleButton);
-  background: var(--colorGrey100); /* Loading BG color */
-  border-radius: var(--borderRadiusMedium);
 
   @media (--viewportMedium) {
+    transition: box-shadow var(--transitionStyleButton), transform var(--transitionStyleButton);
+
     &:hover {
-      transform: scale(1.02);
-      box-shadow: var(--boxShadowListingCard);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1);
+      /* transform: translateY(-2px); */
     }
   }
 }
 
+.rootDark {
+  background-color: var(--colorGrey800);
+}
+
+.imageArea {
+  position: relative;
+  flex-shrink: 0;
+  /* max-height: 220px; */
+  aspect-ratio: 16/14;
+  overflow: hidden;
+  & div{
+    padding: 0 !important;
+    /* max-height: 220px;
+    min-height: 220px;    */
+    aspect-ratio: 16/14;
+  }
+  & img{
+    object-fit: contain;
+    aspect-ratio: 16/14;
+  }
+}
+
+.aspectRatioWrapper {
+  transition: var(--transitionStyleButton);
+  background: var(--colorGrey100);
+
+  /* Loading BG color */
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+
 .rootForImage {
-  border: solid 1px var(--colorGrey100);
-  border-radius: var(--borderRadiusMedium);
+  border: none;
+  border-radius: 0;
   width: 100%;
   height: 100%;
+}
+
+.favoriteOnImage {
+  all: unset;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: auto;
+  width: max-content;
+  height: max-content;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px;
+}
+
+.verifiedBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 100px;
+
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.verifiedIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--colorSuccess);
+}
+
+.verifiedCheck {
+  stroke: var(--colorWhite);
+}
+
+.verifiedLabel {
+  composes: marketplaceTinyFontStyles from global;
+  font-weight: var(--fontWeightMedium);
+  color: var(--colorGrey700);
+  white-space: nowrap;
 }
 
 .title.lightText {
@@ -39,18 +130,203 @@
   color: var(--colorWhite);
 }
 
-.info {
-  /* Layout */
-  display: flex;
-  flex-direction: column;
-  /* ⚠️ padding width is hardcoded in SectionListings.js calculateCarouselHeight() as cardInfoPadding*/
-  padding: 14px 0 2px 0;
+.lightText {
+  color: var(--colorWhite);
 }
 
-/* ⚠️ the total calculated height of this selector is hardcoded in SectionListings.js calculateCarouselHeight() as priceHeight*/
+.lightTextMuted {
+  color: var(--colorGrey300);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  /* ⚠️ padding is reflected in SectionListings.js calculateCarouselHeight() as cardInfoPadding */
+  padding: 24px;
+  gap: 0;
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  /* ⚠️ headerRow height is reflected in SectionListings.js calculateCarouselHeight() as headerRowHeight */
+  margin-bottom: 12px;
+}
+
+.headline {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.headlineSerif {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: var(--fontWeightBold);
+  font-size: 18px;
+  line-height: 1.25;
+  color: #1e2a32;
+  display: block;
+
+  @media (--viewportMedium) {
+    font-size: 20px;
+  }
+}
+
+.rootDark .headlineSerif {
+  color: var(--colorWhite);
+}
+
+.ratingColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.ratingColumnPlaceholder {
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.ratingMain {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratingStar {
+  width: 18px;
+  height: 18px;
+  fill: #d4a012;
+}
+
+.ratingValue {
+  composes: textSmall from global;
+  font-weight: var(--fontWeightBold);
+  color: #1e2a32;
+}
+
+.reviewCount {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey500);
+  margin-top: 2px;
+}
+
+.locationRow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 6px;
+
+  /* ⚠️ locationRow height is reflected in SectionListings.js calculateCarouselHeight() as locationRowHeight */
+  margin-bottom: 12px;
+}
+
+.locationIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  fill: var(--colorGrey500);
+}
+
+.locationText {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  line-height: 1.4;
+}
+
+.bio {
+  composes: marketplaceTinyFontStyles from global;
+  color: var(--colorGrey600);
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+
+  /* ⚠️ bio max height is reflected in SectionListings.js calculateCarouselHeight() as bioHeight */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0 0 16px 0;
+  padding: 0;
+}
+
+.tag {
+  composes: marketplaceTinyFontStyles from global;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background-color: #e8efe8;
+  color: #3d4f3d;
+  font-weight: var(--fontWeightMedium);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--colorGrey100);
+  margin: 0 0 16px 0;
+  flex-shrink: 0;
+}
+
+.footerRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.footerPrice {
+  composes: textSmall from global;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: var(--fontWeightBold);
+  font-size: 18px;
+  line-height: 1.2;
+  color: #1e2a32;
+  flex-shrink: 0;
+}
+
+.footerPricePlaceholder {
+  flex: 1;
+}
+
+.viewProfile {
+  composes: textSmall from global;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d9d4c8;
+  color: #1e2a32;
+  font-weight: var(--fontWeightMedium);
+  background-color: transparent;
+}
+
+.rootDark .viewProfile {
+  border-color: var(--colorGrey500);
+  color: var(--colorWhite);
+}
+
+.rootDark .footerPrice {
+  color: var(--colorWhite);
+}
+
+/* ⚠️ the total calculated height of the price/footer area is reflected in SectionListings.js calculateCarouselHeight() as footerHeight */
 .price {
   composes: textSmall from global;
-  /* Layout */
   flex-shrink: 0;
   margin-bottom: 4px;
   color: var(--colorGrey700);

@@ -1,11 +1,11 @@
 // ⚠️ If you modify the styling of this component and you're using the SectionListings component in your marketplace (featured listings)
-// please reflect those changes in the calculateCarouselHeight function in SectionListing.js to avoid layout issues
+// please reflect those changes in the calculateCarouselHeight function in SectionListings.js to avoid layout issues
 import React from 'react';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
 
-import { useIntl } from '../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { requireListingImage } from '../../util/configHelpers';
 import { lazyLoadWithDimensions } from '../../util/uiHelpers';
 import { createSlug } from '../../util/urlHelpers';
@@ -16,9 +16,12 @@ import {
   ResponsiveImage,
   ListingCardThumbnail,
   FavoriteButton,
+  IconReviewStar,
+  IconLocation,
+  IconCheckmark,
 } from '../../components';
 
-import { getListingCardTranslations } from './ListingCard.helpers';
+import { getListingCardTranslations, getListingCardDisplayData } from './ListingCard.helpers';
 
 import css from './ListingCard.module.css';
 
@@ -56,8 +59,7 @@ const ListingCardImage = props => {
     lazyLoadImage,
   } = props;
 
-  const firstImage = listing.author.profileImage;
-  // const firstImage = listing?.images?.[0] || null;
+  const firstImage = listing.author?.profileImage;
   const variants = firstImage
     ? Object.keys(firstImage?.attributes?.variants).filter(k => k.startsWith(variantPrefix))
     : [];
@@ -70,7 +72,7 @@ const ListingCardImage = props => {
       className={aspectRatioClass}
       width={aspectWidth}
       height={aspectHeight}
-      {...setActivePropsMaybe}
+      // {...setActivePropsMaybe}
     >
       <ImageComponent
         rootClassName={css.rootForImage}
@@ -78,11 +80,6 @@ const ListingCardImage = props => {
         image={firstImage}
         variants={variants}
         sizes={renderSizes}
-      />
-      <FavoriteButton
-        listingId={listing.id}
-        listingAuthor={listing.author}
-        isVisible={true}
       />
     </AspectRatioWrapper>
   );
@@ -126,10 +123,22 @@ export const ListingCard = props => {
     showPrice,
     priceTooltip,
     priceMessage,
-    authorName,
   } = translations;
 
-  const classes = classNames(rootClassName || css.root, className);
+  const displayData = getListingCardDisplayData(listing, showAuthorInfo);
+  const {
+    headlineIsAuthor,
+    bioExcerpt,
+    locationLabel,
+    tags,
+    rating,
+    reviewCount,
+    showVerified,
+  } = displayData;
+
+  const classes = classNames(rootClassName || css.root, className, {
+    [css.rootDark]: darkMode,
+  });
 
   const id = listing?.id?.uuid;
   const { title = '', publicData } = listing?.attributes || {};
@@ -138,7 +147,6 @@ export const ListingCard = props => {
   const { listingType, cardStyle } = publicData || {};
   const validListingTypes = config.listing.listingTypes || [];
   const foundListingTypeConfig = validListingTypes.find(conf => conf.listingType === listingType);
-  // Render the listing image only if listing images are enabled in the listing type
   const showListingImage = requireListingImage(foundListingTypeConfig);
 
   const {
@@ -147,7 +155,6 @@ export const ListingCard = props => {
     variantPrefix = 'listing-card',
   } = config.layout.listingImage;
 
-  // Sets the listing as active in the search map when hovered (if the search map is enabled)
   const setActivePropsMaybe = setActiveListing
     ? {
         onMouseEnter: () => setActiveListing(listing?.id),
@@ -155,55 +162,120 @@ export const ListingCard = props => {
       }
     : null;
 
+  const showRatingBlock = rating != null;
+  const showReviewCount = showRatingBlock && reviewCount != null && reviewCount > 0;
+
   return (
-    <NamedLink
+   <div>
+     <NamedLink
       className={classes}
       name="ListingPage"
       params={{ id, slug }}
       ariaLabel={cardAriaLabel}
     >
-      {showListingImage ? (
-        <ListingCardImage
-          renderSizes={renderSizes}
-          title={titlePlain}
-          listing={listing}
-          setActivePropsMaybe={setActivePropsMaybe}
-          aspectWidth={aspectWidth}
-          aspectHeight={aspectHeight}
-          variantPrefix={variantPrefix}
-          aspectRatioClassName={aspectRatioClassName}
-          lazyLoadImage={lazyLoadImage}
+      <div className={css.imageArea} {...setActivePropsMaybe}>
+        {showListingImage ? (
+          <ListingCardImage
+            renderSizes={renderSizes}
+            title={titlePlain}
+            listing={listing}
+            setActivePropsMaybe={null}
+            aspectWidth={aspectWidth}
+            aspectHeight={aspectHeight}
+            variantPrefix={variantPrefix}
+            aspectRatioClassName={aspectRatioClassName}
+            lazyLoadImage={lazyLoadImage}
+          />
+        ) : (
+          <ListingCardThumbnail
+            style={cardStyle}
+            listingTitle={title}
+            className={classNames(css.aspectRatioWrapper, aspectRatioClassName)}
+            width={aspectWidth}
+            height={aspectHeight}
+            setActivePropsMaybe={null}
+          />
+        )}
+        <FavoriteButton
+          listingId={listing.id}
+          listingAuthor={listing.author}
+          isVisible={true}
+          rootClassName={css.favoriteOnImage}
         />
-      ) : (
-        <ListingCardThumbnail
-          style={cardStyle}
-          listingTitle={title}
-          className={aspectRatioClassName}
-          width={aspectWidth}
-          height={aspectHeight}
-          setActivePropsMaybe={setActivePropsMaybe}
-        />
-      )}
-      <div className={css.info}>
-        {showPrice ? (
-          <div className={css.price} title={priceTooltip}>
-            {priceMessage}
+        {showVerified ? (
+          <div className={css.verifiedBadge}>
+            <span className={css.verifiedIcon} aria-hidden="true">
+              <IconCheckmark rootClassName={css.verifiedCheck} size="small" />
+            </span>
+            <span className={css.verifiedLabel}>
+              <FormattedMessage id="ListingCard.verified" />
+            </span>
           </div>
         ) : null}
-        <div className={css.mainInfo}>
-          {showListingImage && (
-            <div className={classNames(css.title, { [css.lightText]: darkMode })}>
-              {titleFormatted}
+      </div>
+
+      <div className={css.info}>
+        <div className={css.headerRow}>
+          <div className={classNames(css.headline, { [css.lightText]: darkMode })}>
+            <span className={css.headlineSerif}>
+              {showListingImage && headlineIsAuthor
+                ? listing.author?.attributes?.profile?.displayName
+                : titleFormatted}
+            </span>
+          </div>
+          {showRatingBlock ? (
+            <div className={css.ratingColumn} aria-hidden="true">
+              <div className={css.ratingMain}>
+                <IconReviewStar className={css.ratingStar} isFilled />
+                <span className={css.ratingValue}>{rating}</span>
+              </div>
+              {showReviewCount ? (
+                <span className={css.reviewCount}>
+                  <FormattedMessage id="ListingCard.reviewsCount" values={{ count: reviewCount }} />
+                </span>
+              ) : null}
             </div>
+          ) : (
+            <div className={css.ratingColumnPlaceholder} />
           )}
-          {showAuthorInfo ? (
-            <div className={classNames(css.authorInfo, { [css.lightText]: darkMode })}>
-              {authorName}
+        </div>
+
+        {locationLabel ? (
+          <div className={css.locationRow}>
+            <IconLocation rootClassName={css.locationIcon} />
+            <span className={css.locationText}>{locationLabel}</span>
+          </div>
+        ) : null}
+
+        {bioExcerpt ? (
+          <p className={classNames(css.bio, { [css.lightTextMuted]: darkMode })}>{bioExcerpt}</p>
+        ) : null}
+
+        {tags.length > 0 ? (
+          <ul className={css.tags}>
+            {tags.map(tag => (
+              <li key={tag} className={css.tag}>
+                {tag}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className={css.divider} />
+
+        <div className={css.footerRow}>
+          {showPrice ? (
+            <div className={css.footerPrice} title={priceTooltip}>
+              {priceMessage}
             </div>
-          ) : null}
+          ) : (
+            <div className={css.footerPricePlaceholder} />
+          )}
+          
         </div>
       </div>
     </NamedLink>
+   </div>
   );
 };
 

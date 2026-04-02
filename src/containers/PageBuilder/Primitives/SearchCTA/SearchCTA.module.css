@@ -29,7 +29,7 @@
   border-color: var(--colorGrey800);
   border-width: 1px;
   color: var(--colorGrey500);
-  border-radius: 8px;
+  border-radius: 100px;
   box-shadow: var(--boxShadowPopup);
   width: calc(100vw - 83px);
   padding: 0 8px 8px 8px;
@@ -39,7 +39,7 @@
   }
   @media (--viewportLarge) {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     &.gridCol1 {
       width: 576px;
     }
@@ -101,11 +101,12 @@
 .submitButton {
   min-height: 40px;
   min-width: 86px;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: 26px;
+  padding-right: 26px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border-radius: 100px;
   @media (--viewportMedium) {
     height: 48px;
   }

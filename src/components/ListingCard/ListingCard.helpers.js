@@ -6,6 +6,89 @@ import { isBookingProcessAlias } from '../../transactions/transaction';
 import css from './ListingCard.module.css';
 
 const MIN_LENGTH_FOR_LONG_WORDS = 10;
+const MAX_BIO_LENGTH = 140;
+
+const stripHtmlToPlain = text => {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  return text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
+const truncateText = (text, maxLen) => {
+  if (!text || text.length <= maxLen) {
+    return text;
+  }
+  return `${text.slice(0, maxLen - 1).trim()}…`;
+};
+
+/**
+ * Optional display fields for the listing card (location, tags, rating, bio excerpt).
+ * Rating/review counts may come from listing or author publicData when provided via Console or Integration API.
+ *
+ * @param {Object} listing - listing or ownListing
+ * @param {boolean} showAuthorInfo - when true, headline prefers author display name
+ * @returns {Object} display data for the card body
+ */
+export const getListingCardDisplayData = (listing, showAuthorInfo) => {
+  const { description = '', publicData } = listing?.attributes || {};
+  const author = listing?.author;
+  const authorProfile = author?.attributes?.profile;
+  const authorPublicData = authorProfile?.publicData || {};
+  const listingPd = publicData || {};
+
+  const displayName = authorProfile?.displayName;
+  const headlineIsAuthor = showAuthorInfo && displayName;
+
+  const plainDescription = stripHtmlToPlain(description);
+  const bioExcerpt = truncateText(plainDescription, MAX_BIO_LENGTH);
+
+  const address = listingPd?.location?.address;
+  const locationLabel = typeof address === 'string' && address.length > 0 ? address : '';
+
+  const rawTags =
+    (Array.isArray(listingPd.skills) && listingPd.skills) ||
+    (Array.isArray(listingPd.tags) && listingPd.tags) ||
+    [];
+  const tags = rawTags
+    .filter(t => typeof t === 'string' && t.length > 0)
+    .slice(0, 5);
+
+  const ratingRaw =
+    listingPd.rating ??
+    listingPd.providerRating ??
+    authorPublicData.rating ??
+    null;
+  const rating =
+    typeof ratingRaw === 'number' && !Number.isNaN(ratingRaw)
+      ? Math.round(ratingRaw * 10) / 10
+      : null;
+
+  const reviewCountRaw =
+    listingPd.reviewCount ??
+    listingPd.providerReviewCount ??
+    authorPublicData.reviewCount ??
+    null;
+  const reviewCount =
+    typeof reviewCountRaw === 'number' && reviewCountRaw >= 0
+      ? Math.floor(reviewCountRaw)
+      : null;
+
+  const showVerified =
+    authorPublicData.verified === true ||
+    authorPublicData.providerVerified === true ||
+    authorPublicData.identityVerified === true;
+
+  return {
+    headlineIsAuthor,
+    bioExcerpt,
+    locationLabel,
+    tags,
+    rating,
+    reviewCount,
+    showVerified,
+  };
+};
 
 const priceData = (price, currency, intl) => {
   if (price && price.currency === currency) {

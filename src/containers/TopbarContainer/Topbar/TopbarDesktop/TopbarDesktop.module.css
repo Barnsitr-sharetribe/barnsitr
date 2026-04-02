@@ -94,7 +94,7 @@
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0;
-  color: var(--colorGrey700);
+  color: var(--marketplaceColor);
 
   height: 100%;
   padding: 0 12px 0 12px;
@@ -110,6 +110,23 @@
   @media (--viewportMedium) {
     line-height: 16px;
     margin: 0;
+  }
+}
+.signUpLink{
+  background: var(--marketplaceColor);
+  border-radius: 4px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  & *{
+    color: #fff;
+    margin: 0 !important;
+  }
+  &:hover{
+    border-radius: 4px;
+    height: 36px;
   }
 }
 

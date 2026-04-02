@@ -23,7 +23,7 @@ import { getProfileListingRedirectProps } from '../../../ProfileSettingsPage/Pro
 
 const SignupLink = () => {
   return (
-    <NamedLink id="signup-link" name="SignupPage" className={css.topbarLink}>
+    <NamedLink id="signup-link" name="SignupPage" className={classNames(css.topbarLink,css.signUpLink)}>
       <span className={css.topbarLinkLabel}>
         <FormattedMessage id="TopbarDesktop.signup" />
       </span>
@@ -248,8 +248,8 @@ const TopbarDesktop = props => {
 
       {inboxLinkMaybe}
       {profileMenuMaybe}
-      {signupLinkMaybe}
       {loginLinkMaybe}
+      {signupLinkMaybe}
     </nav>
   );
 };
