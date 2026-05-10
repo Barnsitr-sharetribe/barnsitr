@@ -1447,7 +1447,7 @@
   "BookingDatesForm.addressPlaceholder": "Enter the job location",
   "BookingDatesForm.addressRequired": "Please enter the job location",
   "BookingDatesForm.addressNotRecognized": "The address was not recognized. Please check the address and try again.",
-  "FetchLineItemsError.distanceError": "The provider is not available at this location. Please try a different address.",
+  "FetchLineItemsError.distanceError": "The provider is not available at this location. You can still request to book and see if the provider can accommodate.",
   "OrderPanel.contactToBook": "Contact",
   "BookingDatesForm.contactToBook": "Contact"
 }

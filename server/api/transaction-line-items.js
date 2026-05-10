@@ -22,21 +22,15 @@ module.exports = (req, res) => {
       const { providerCommission, customerCommission } =
         commissionAsset?.type === 'jsonAsset' ? commissionAsset.attributes.data : {};
 
-      let distance = 0;
+      let isWithinServiceArea = true;
       if (orderData?.location?.origin) {
-        distance = await calculateDistance(
+        const distance = await calculateDistance(
           orderData.location.origin,
           listing.attributes.geolocation
         );
 
         if (distance > serviceArea || distance === null) {
-          throw {
-            status: 400,
-            statusText: 'Bad Request',
-            name: 'DistanceError',
-            message: 'Provider is not available in this area',
-            data: {},
-          };
+          isWithinServiceArea = false;
         }
       }
 
@@ -54,7 +48,7 @@ module.exports = (req, res) => {
       res
         .status(200)
         .set('Content-Type', 'application/transit+json')
-        .send(serialize({ data: validLineItems }))
+        .send(serialize({ data: validLineItems, isWithinServiceArea }))
         .end();
     })
     .catch(e => {

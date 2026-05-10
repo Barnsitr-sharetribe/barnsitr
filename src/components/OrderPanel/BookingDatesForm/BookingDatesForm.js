@@ -44,6 +44,12 @@ import FetchLineItemsError from '../FetchLineItemsError/FetchLineItemsError.js';
 
 import css from './BookingDatesForm.module.css';
 import { identity } from '../../../containers/EditListingPage/EditListingWizard/EditListingLocationPanel/EditListingLocationForm.js';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchTransactionLineItems,
+  sendInquiry,
+} from '../../../containers/ListingPage/ListingPage.duck.js';
+import { useHistory } from 'react-router-dom';
 
 const TODAY = new Date();
 
@@ -534,6 +540,9 @@ const onPriceVariantChange = props => value => {
  * @returns {JSX.Element}
  */
 export const BookingDatesForm = props => {
+  const { isWithinServiceArea } = useSelector(state => state.ListingPage);
+  const dispatch = useDispatch();
+  const history = useHistory();
   const {
     rootClassName,
     className,
@@ -640,7 +649,32 @@ export const BookingDatesForm = props => {
           finePrintComponent: FinePrint,
           onContactUser,
           fromTxPage,
+          listing,
         } = formRenderProps;
+
+        // Override handleSubmit when not coming from a transaction page
+        const onSubmit = fromTxPage
+          ? handleSubmit
+          : event => {
+              event.preventDefault();
+              event.stopPropagation();
+              // Custom submit logic for listing page order panel
+              // Form values are available via `values` in scope
+              dispatch(
+                sendInquiry(
+                  {
+                    bookingStart: values?.bookingDates?.startDate,
+                    bookingEnd: values?.bookingDates?.endDate,
+                    location: values.location.search,
+                    isWithinServiceArea,
+                  },
+                  listing
+                )
+              ).then(response => {
+                history.push(`/order/${response.uuid}`);
+              });
+            };
+
         const { startDate, endDate } = values?.bookingDates ? values.bookingDates : {};
         const priceVariantName = values?.priceVariantName || null;
 
@@ -729,10 +763,12 @@ export const BookingDatesForm = props => {
 
         const isDaily = lineItemUnitType === LINE_ITEM_DAY;
         const submitDisabled =
-          (isPriceVariationsInUse && !isPublishedListing) || !!fetchLineItemsError;
+          (isPriceVariationsInUse && !isPublishedListing) ||
+          !!fetchLineItemsError ||
+          !values?.location?.search;
 
         return (
-          <Form onSubmit={handleSubmit} className={classes} enforcePagePreloadFor="CheckoutPage">
+          <Form onSubmit={onSubmit} className={classes} enforcePagePreloadFor="CheckoutPage">
             {PriceVariantFieldComponent ? (
               <PriceVariantFieldComponent
                 priceVariants={priceVariants}
@@ -892,7 +928,7 @@ export const BookingDatesForm = props => {
               />
             )}
 
-            {showEstimatedBreakdown ? (
+            {showEstimatedBreakdown && fromTxPage ? (
               <div className={css.priceBreakdownContainer}>
                 <H6 as="h3" className={css.bookingBreakdownTitle}>
                   <FormattedMessage id="BookingDatesForm.priceBreakdownTitle" />
@@ -908,6 +944,13 @@ export const BookingDatesForm = props => {
                 />
               </div>
             ) : null}
+
+            {isWithinServiceArea === false && (
+              <span className={css.error}>
+                <FormattedMessage id="FetchLineItemsError.distanceError" />
+              </span>
+            )}
+
             <FetchLineItemsError error={fetchLineItemsError} />
 
             <div className={css.submitButton}>
@@ -921,13 +964,13 @@ export const BookingDatesForm = props => {
             </div>
             <FinePrint payoutDetailsWarning={payoutDetailsWarning} isOwnListing={isOwnListing} />
 
-            {!fromTxPage && (
+            {/* {!fromTxPage && (
               <div className={css.contactButton}>
                 <SecondaryButton type="button" onClick={onContactUser}>
                   <FormattedMessage id="BookingDatesForm.contactToBook" />
                 </SecondaryButton>
               </div>
-            )}
+            )} */}
           </Form>
         );
       }}

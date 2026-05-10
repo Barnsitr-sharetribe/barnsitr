@@ -29,6 +29,9 @@ import { currentUserTypeSelector } from '../../../../ducks/user.duck';
 import { onImageUploadHandler } from '../../../ProfileSettingsPage/ProfileSettingsPage';
 import { updateProfile, uploadImage } from '../../../ProfileSettingsPage/ProfileSettingsPage.duck';
 import { ensureCurrentUser } from '../../../../util/data';
+import { types as sdkTypes } from '../../../../util/sdkLoader';
+
+const { Money } = sdkTypes;
 
 /**
  * Get listing configuration. For existing listings, it is stored to publicData.
@@ -479,6 +482,7 @@ const EditListingDetailsPanel = props => {
             const updateValues = {
               title: title.trim(),
               description,
+              price: new Money(0, config.currency),
               publicData: {
                 listingType,
                 transactionProcessAlias,

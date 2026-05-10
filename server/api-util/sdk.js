@@ -69,7 +69,7 @@ exports.deserialize = str => {
 
 exports.handleError = (res, error, options = {}) => {
   if (!options?.skipErrorLogging) {
-    log.error(error, 'local-api-request-failed', error.data);
+    log.error(error, 'local-api-request-failed', JSON.stringify(error.data));
   }
 
   if (error.status && error.statusText && error.data) {

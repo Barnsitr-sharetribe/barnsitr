@@ -84,6 +84,10 @@ module.exports = (req, res) => {
           ...params,
           lineItems,
           ...metadataMaybe,
+          protectedData: {
+            ...params.protectedData,
+            isWithinServiceArea: orderData.isWithinServiceArea,
+          },
         },
       };
 

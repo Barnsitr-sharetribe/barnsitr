@@ -527,6 +527,7 @@ const OrderPanel = props => {
             finePrintComponent={SubmitFinePrint}
             onContactUser={onContactUser}
             fromTxPage={fromTxPage}
+            listing={listing}
             {...priceVariantsMaybe}
             {...sharedProps}
           />
@@ -586,11 +587,11 @@ const OrderPanel = props => {
           </div>
         ) : (
           <div className={css.buttonContainer}>
-            {!fromTxPage && (
+            {/* {!fromTxPage && (
               <SecondaryButton type="button" onClick={onContactUser}>
                 <FormattedMessage id="OrderPanel.contactToBook" />
               </SecondaryButton>
-            )}
+            )} */}
             <PrimaryButton
               id={ORDER_PANEL_SUBMIT_BUTTON_ID}
               onClick={handleSubmit(

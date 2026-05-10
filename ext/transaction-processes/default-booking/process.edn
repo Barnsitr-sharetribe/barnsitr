@@ -2,8 +2,12 @@
  :transitions
  [{:name :transition/inquire,
    :actor :actor.role/customer,
-   :actions [{:name :action/update-protected-data}],
-   :to :state/inquiry}
+   :actions 
+   [{:name :action/update-protected-data}
+    {:name :action/create-pending-booking, :config {:type :time}}
+    {:name :action/privileged-set-line-items}],
+   :to :state/inquiry
+   :privileged? true}
   {:name :transition/request-payment,
    :actor :actor.role/customer,
    :actions

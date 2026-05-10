@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { types as sdkTypes, createImageVariantConfig } from '../../util/sdkLoader';
 import { storableError } from '../../util/errors';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { transactionLineItems } from '../../util/api';
+import { initiatePrivileged, transactionLineItems } from '../../util/api';
 import * as log from '../../util/log';
 import { denormalisedResponseEntities } from '../../util/data';
 import {
@@ -213,7 +213,7 @@ export const fetchTimeSlots = (listingId, start, end, timeZone, options) => (
 // Send Inquiry //
 //////////////////
 const sendInquiryPayloadCreator = (
-  { listing, message },
+  { listing, message, orderData },
   { dispatch, rejectWithValue, extra: sdk }
 ) => {
   const processAlias = listing?.attributes?.publicData?.transactionProcessAlias;
@@ -244,20 +244,27 @@ const sendInquiryPayloadCreator = (
   const transitions = getProcess(processName)?.transitions;
 
   const bodyParams = {
-    transition: transitions.INQUIRE,
     processAlias,
-    params: { listingId },
+    transition: transitions.INQUIRE,
+    params: {
+      listingId,
+      bookingStart: orderData.bookingStart,
+      bookingEnd: orderData.bookingEnd,
+      protectedData: {
+        customerLocation: orderData.location,
+      },
+    },
   };
-  return sdk.transactions
-    .initiate(bodyParams)
+
+  const queryParams = {
+    include: ['booking', 'provider'],
+    expand: true,
+  };
+
+  return initiatePrivileged({ isSpeculative: false, orderData, bodyParams, queryParams })
     .then(response => {
       const transactionId = response.data.data.id;
-
-      // Send the message to the created transaction
-      return sdk.messages.send({ transactionId, content: message }).then(() => {
-        dispatch(setCurrentUserHasOrders());
-        return transactionId;
-      });
+      return transactionId;
     })
     .catch(e => {
       return rejectWithValue(storableError(e));
@@ -269,8 +276,8 @@ export const sendInquiryThunk = createAsyncThunk(
   sendInquiryPayloadCreator
 );
 // Backward compatible wrapper for the thunk
-export const sendInquiry = (listing, message) => (dispatch, getState, sdk) => {
-  return dispatch(sendInquiryThunk({ listing, message })).unwrap();
+export const sendInquiry = (orderData, listing, message) => (dispatch, getState, sdk) => {
+  return dispatch(sendInquiryThunk({ listing, message, orderData })).unwrap();
 };
 
 // Helper function for loadData call.
@@ -345,7 +352,7 @@ const fetchTransactionLineItemsPayloadCreator = (
 ) => {
   return transactionLineItems({ orderData, listingId, isOwnListing })
     .then(response => {
-      return response.data;
+      return { data: response.data, isWithinServiceArea: response.isWithinServiceArea };
     })
     .catch(e => {
       log.error(e, 'fetching-line-items-failed', {
@@ -510,7 +517,8 @@ const listingPageSlice = createSlice({
       })
       .addCase(fetchTransactionLineItemsThunk.fulfilled, (state, action) => {
         state.fetchLineItemsInProgress = false;
-        state.lineItems = action.payload;
+        state.lineItems = action.payload.data;
+        state.isWithinServiceArea = action.payload.isWithinServiceArea;
       })
       .addCase(fetchTransactionLineItemsThunk.rejected, (state, action) => {
         state.fetchLineItemsInProgress = false;
