@@ -38,6 +38,9 @@ import SearchPageAccessWrapper from './SearchPageAccessWrapper';
 import SearchErrors from './SearchErrors';
 
 import css from './SearchPage.module.css';
+import { types as sdkTypes } from '../../util/sdkLoader';
+
+const { LatLng: SDKLatLng, LatLngBounds: SDKLatLngBounds } = sdkTypes;
 
 const MODAL_BREAKPOINT = 768; // Search is in modal on mobile layout
 const SEARCH_WITH_MAP_DEBOUNCE = 300; // Little bit of debounce before search is initiated.
@@ -304,7 +307,13 @@ export class SearchPageComponent extends Component {
       />
     );
 
-    const { bounds, origin } = searchParamsInURL || {};
+    const {
+      bounds = new SDKLatLngBounds(
+        new SDKLatLng(52.40702368, -80.93326788),
+        new SDKLatLng(13.3484246, -123.90175609)
+      ),
+      origin,
+    } = searchParamsInURL || {};
 
     // Set topbar class based on if a modal is open in
     // a child component
