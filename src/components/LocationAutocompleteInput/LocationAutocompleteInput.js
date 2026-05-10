@@ -26,7 +26,6 @@ const LocationAutocompleteInputImpl = loadable(() =>
  * @returns {JSX.Element} arrow head icon
  */
 const LocationAutocompleteInputComponent = props => {
-  /* eslint-disable no-unused-vars */
   const { rootClassName, labelClassName, hideErrorMessage, ...restProps } = props;
   const { input, label, meta, valueFromForm, onChange, ...otherProps } = restProps;
   /* eslint-enable no-unused-vars */
