@@ -43,6 +43,8 @@ const FavoriteListingsPage = loadable(() => import(/* webpackChunkName: "Favorit
 
 // Styleguide helps you to review current components and develop new ones
 const StyleguidePage = loadable(() => import(/* webpackChunkName: "StyleguidePage" */ '../containers/StyleguidePage/StyleguidePage'));
+const VideoMeetingPage = loadable(() => import(/* webpackChunkName: "VideoMeetingPage" */ '../containers/VideoMeetingPage/VideoMeetingPage'));
+
 
 export const ACCOUNT_SETTINGS_PAGES = [
   'ContactDetailsPage',
@@ -83,7 +85,14 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: LandingPage,
       loadData: pageDataLoadingAPI.LandingPage.loadData,
     },
-        {
+    {
+      path: '/video-meeting',
+      name: 'VideoMeetingPage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: VideoMeetingPage,
+    },
+    {
       path: '/favorites',
       name: 'FavoriteListingsPage',
       auth: true, // user must be signed in to view this page

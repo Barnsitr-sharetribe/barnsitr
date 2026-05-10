@@ -196,6 +196,7 @@ export class TransactionPanelComponent extends Component {
       config,
       hasViewingRights,
       transactionFieldsComponent,
+      metadata,
     } = this.props;
 
     const hasTransitions = transitions.length > 0;
@@ -357,6 +358,18 @@ export class TransactionPanelComponent extends Component {
               fetchMessagesError={fetchMessagesError}
               activityFeed={activityFeed}
               isConversation={isInquiryProcess}
+              title={listingTitle}
+              txID={this.props.transactionId}
+              onSendMessage={this.props.onSendMessage}
+              config={config}
+              metadata={metadata}
+              isCustomer={isCustomer}
+              ownDisplayName={
+                isCustomer
+                  ? customer.attributes?.profile?.displayName
+                  : provider.attributes?.profile?.displayName
+              }
+              transitions={transitions}
             />
             {showSendMessageForm ? (
               <SendMessageForm

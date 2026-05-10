@@ -155,3 +155,7 @@ export const deleteUserAccount = body => {
 export const generatePresignedUrl = body => {
   return post('/api/presigned-url', body);
 };
+
+export const setupVideoConferenceRoom = body => {
+  return post('/api/video-conference/setup-room', body);
+};
