@@ -31,6 +31,7 @@ import {
   isPurchaseProcess,
   PURCHASE_PROCESS_NAME,
   isInquiryProcess,
+  BOOKING_PROCESS_NAME,
 } from '../../transactions/transaction';
 
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -133,17 +134,21 @@ const onMakeCounterOffer = (
   onTransition,
   transactionRole,
   currency,
+  bookingStart,
+  bookingEnd,
   setMakeCounterOfferModalOpen,
   setCounterOfferSubmitted
 ) => values => {
   const { counterOffer } = values;
 
   // First make the transition with the counter offer amount
+  const bookingMaybe = bookingStart && bookingEnd ? { bookingStart, bookingEnd } : {};
   const params = {
     orderData: {
       actor: transactionRole,
       offerInSubunits: counterOffer.amount, // TODO: get the actual offer in subunits
       currency,
+      ...bookingMaybe,
     },
   };
 
@@ -445,6 +450,30 @@ export const TransactionPageComponent = props => {
     setMakeCounterOfferModalOpen(true);
   };
 
+  const handleRequestPaymentAfterInquiry = () => {
+    const bookingMaybe =
+      booking?.attributes?.start && booking?.attributes?.end
+        ? {
+            bookingDates: {
+              bookingStart: booking.attributes.start,
+              bookingEnd: booking.attributes.end,
+            },
+          }
+        : {};
+    const offers = transaction?.attributes?.metadata?.offers || [];
+
+    const initialValues = {
+      listing,
+      transaction,
+      orderData: {
+        ...bookingMaybe,
+        offer: offers[offers.length - 1]?.offerInSubunits,
+      },
+      confirmPaymentError: null,
+    };
+    redirectToCheckoutPageWithInitialValues(initialValues, listing);
+  };
+
   // Submit review and close the review modal
   const onSubmitReview = values => {
     const { reviewRating, reviewContent } = values;
@@ -585,6 +614,7 @@ export const TransactionPageComponent = props => {
           onOpenReviewModal,
           onOpenRequestChangesModal,
           onOpenMakeCounterOfferModal,
+          handleRequestPaymentAfterInquiry,
           onCheckoutRedirect: handleSubmitOrderRequest,
           onMakeOfferRedirect: onMakeOffer,
           intl,
@@ -813,7 +843,12 @@ export const TransactionPageComponent = props => {
   const showMakeCounterOfferModal =
     currencyConfig &&
     (process?.transitions?.CUSTOMER_MAKE_COUNTER_OFFER ||
-      process?.transitions?.PROVIDER_MAKE_COUNTER_OFFER);
+      process?.transitions?.PROVIDER_MAKE_COUNTER_OFFER ||
+      process?.transitions?.INQUIRE);
+
+  const isBooking = isBookingProcess(processName);
+  const isInquiryTransition =
+    transaction?.attributes?.lastTransition === process?.transitions?.INQUIRE;
 
   const pageHeading = isDataAvailable
     ? intl.formatMessage(
@@ -898,12 +933,20 @@ export const TransactionPageComponent = props => {
             onManageDisableScrolling={onManageDisableScrolling}
             onMakeCounterOffer={onMakeCounterOffer(
               transaction?.id,
-              transactionRole === CUSTOMER
+              isBooking
+                ? isInquiryTransition
+                  ? process?.transitions?.MAKE_OFFER
+                  : transactionRole === CUSTOMER
+                  ? process?.transitions?.CUSTOMER_COUNTER_OFFER
+                  : process?.transitions?.PROVIDER_COUNTER_OFFER
+                : transactionRole === CUSTOMER
                 ? process?.transitions?.CUSTOMER_MAKE_COUNTER_OFFER
                 : process?.transitions?.PROVIDER_MAKE_COUNTER_OFFER,
               onTransition,
               transactionRole,
               currency,
+              booking?.attributes?.start,
+              booking?.attributes?.end,
               setMakeCounterOfferModalOpen,
               setCounterOfferSubmitted
             )}
@@ -912,6 +955,7 @@ export const TransactionPageComponent = props => {
             counterOfferInProgress={counterOffers.includes(transitionInProgress)}
             counterOfferError={transitionError}
             currencyConfig={currencyConfig}
+            isProvider={transactionRole !== CUSTOMER}
           />
         ) : null}
       </LayoutSingleColumn>

@@ -29,6 +29,13 @@
   composes: marketplaceModalParagraphStyles from global;
 }
 
+.modalRecommendation {
+  composes: marketplaceModalParagraphStyles from global;
+  color: var(--colorGrey700);
+  font-style: italic;
+  margin-top: 0;
+}
+
 .formRoot {
   display: flex;
   flex-direction: column;

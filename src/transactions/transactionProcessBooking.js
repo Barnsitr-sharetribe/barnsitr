@@ -24,6 +24,15 @@ export const transitions = {
   INQUIRE: 'transition/inquire',
   REQUEST_PAYMENT_AFTER_INQUIRY: 'transition/request-payment-after-inquiry',
 
+  // Provider can make an offer from the inquiry state.
+  // Customer and provider can counter-offer back and forth.
+  // Either party can accept to move to offer-accepted.
+  MAKE_OFFER: 'transition/make-offer',
+  CUSTOMER_COUNTER_OFFER: 'transition/customer-counter-offer',
+  PROVIDER_COUNTER_OFFER: 'transition/provider-counter-offer',
+  CUSTOMER_ACCEPT_OFFER: 'transition/customer-accept-offer',
+  PROVIDER_ACCEPT_OFFER: 'transition/provider-accept-offer',
+
   // Stripe SDK might need to ask 3D security from customer, in a separate front-end step.
   // Therefore we need to make another transition to Marketplace API,
   // to tell that the payment is confirmed.
@@ -76,6 +85,9 @@ export const transitions = {
 export const states = {
   INITIAL: 'initial',
   INQUIRY: 'inquiry',
+  OFFER_PENDING: 'offer-pending',
+  CUSTOMER_OFFER_PENDING: 'customer-offer-pending',
+  OFFER_ACCEPTED: 'offer-accepted',
   PENDING_PAYMENT: 'pending-payment',
   PAYMENT_EXPIRED: 'payment-expired',
   PREAUTHORIZED: 'preauthorized',
@@ -116,6 +128,26 @@ export const graph = {
       },
     },
     [states.INQUIRY]: {
+      on: {
+        [transitions.MAKE_OFFER]: states.OFFER_PENDING,
+      },
+    },
+
+    [states.OFFER_PENDING]: {
+      on: {
+        [transitions.CUSTOMER_COUNTER_OFFER]: states.CUSTOMER_OFFER_PENDING,
+        [transitions.CUSTOMER_ACCEPT_OFFER]: states.OFFER_ACCEPTED,
+      },
+    },
+
+    [states.CUSTOMER_OFFER_PENDING]: {
+      on: {
+        [transitions.PROVIDER_COUNTER_OFFER]: states.OFFER_PENDING,
+        [transitions.PROVIDER_ACCEPT_OFFER]: states.OFFER_ACCEPTED,
+      },
+    },
+
+    [states.OFFER_ACCEPTED]: {
       on: {
         [transitions.REQUEST_PAYMENT_AFTER_INQUIRY]: states.PENDING_PAYMENT,
       },
@@ -188,6 +220,11 @@ export const isRelevantPastTransition = transition => {
     transitions.DECLINE,
     transitions.OPERATOR_DECLINE,
     transitions.EXPIRE,
+    transitions.MAKE_OFFER,
+    transitions.CUSTOMER_COUNTER_OFFER,
+    transitions.PROVIDER_COUNTER_OFFER,
+    transitions.CUSTOMER_ACCEPT_OFFER,
+    transitions.PROVIDER_ACCEPT_OFFER,
     transitions.REVIEW_1_BY_CUSTOMER,
     transitions.REVIEW_1_BY_PROVIDER,
     transitions.REVIEW_2_BY_CUSTOMER,
@@ -214,9 +251,13 @@ export const isProviderReview = transition => {
 // should go through the local API endpoints, or if using JS SDK is
 // enough.
 export const isPrivileged = transition => {
-  return [transitions.REQUEST_PAYMENT, transitions.REQUEST_PAYMENT_AFTER_INQUIRY].includes(
-    transition
-  );
+  return [
+    transitions.REQUEST_PAYMENT,
+    transitions.REQUEST_PAYMENT_AFTER_INQUIRY,
+    transitions.MAKE_OFFER,
+    transitions.CUSTOMER_COUNTER_OFFER,
+    transitions.PROVIDER_COUNTER_OFFER,
+  ].includes(transition);
 };
 
 // Check when transaction is completed (booking over)

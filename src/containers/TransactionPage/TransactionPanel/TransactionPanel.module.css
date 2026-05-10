@@ -34,6 +34,35 @@
   }
 }
 
+.customerLocation {
+  color: var(--colorGrey700);
+  font-size: 14px;
+  margin: 12px 24px 0 24px;
+
+  @media (--viewportMedium) {
+    margin: 16px 24px 0 24px;
+  }
+  @media (--viewportLarge) {
+    margin: 16px 0 0 0;
+  }
+}
+
+.serviceAreaAlert {
+  background-color: var(--colorWarningLight, #fff3cd);
+  border: 1px solid var(--colorWarning, #ffc107);
+  border-radius: 4px;
+  color: var(--colorWarningDark, #856404);
+  margin: 24px 24px 0 24px;
+  padding: 12px 16px;
+
+  @media (--viewportMedium) {
+    margin: 32px 24px 0 24px;
+  }
+  @media (--viewportLarge) {
+    margin: 32px 0 0 0;
+  }
+}
+
 .genericError {
   color: var(--colorFail);
   margin: 24px 24px 0 24px;

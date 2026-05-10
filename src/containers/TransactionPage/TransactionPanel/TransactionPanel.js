@@ -287,6 +287,21 @@ export class TransactionPanelComponent extends Component {
               listingDeleted={listingDeleted}
             />
 
+            {protectedData?.customerLocation ? (
+              <div className={css.customerLocation}>
+                <FormattedMessage
+                  id="TransactionPanel.customerLocation"
+                  values={{ address: protectedData.customerLocation }}
+                />
+              </div>
+            ) : null}
+
+            {isProvider ? (
+              <div className={css.serviceAreaAlert}>
+                <FormattedMessage id="TransactionPanel.serviceAreaMismatchAlert" />
+              </div>
+            ) : null}
+
             {requestQuote}
             {offer}
             {transactionFieldsComponent}

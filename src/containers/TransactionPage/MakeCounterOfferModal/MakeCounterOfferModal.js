@@ -6,7 +6,7 @@ import { useConfiguration } from '../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { formatMoney } from '../../../util/currency';
-import { required } from '../../../util/validators';
+import { required, composeValidators, moneySubUnitAmountAtLeast } from '../../../util/validators';
 
 import { FieldCurrencyInput, Form, Modal, Button } from '../../../components';
 
@@ -30,6 +30,7 @@ const MakeCounterOfferForm = props => (
         counterOfferInProgress,
         currencyConfig,
         currentOffer,
+        isProvider,
       } = fieldRenderProps;
 
       const errorMessageMaybe = counterOfferError ? (
@@ -53,7 +54,17 @@ const MakeCounterOfferForm = props => (
               { currentOffer: currentOfferFormatted }
             )}
             currencyConfig={currencyConfig}
-            validate={required(intl.formatMessage({ id: 'MakeCounterOfferForm.offerRequired' }))}
+            validate={composeValidators(
+              required(intl.formatMessage({ id: 'MakeCounterOfferForm.offerRequired' })),
+              ...(isProvider
+                ? [
+                    moneySubUnitAmountAtLeast(
+                      intl.formatMessage({ id: 'MakeCounterOfferForm.minPriceError' }),
+                      3500
+                    ),
+                  ]
+                : [])
+            )}
           />
           <p className={css.errorPlaceholder}>{errorMessageMaybe}</p>
           <Button
@@ -75,7 +86,7 @@ const MakeCounterOfferForm = props => (
 const CounterOfferInfo = props => {
   const config = useConfiguration();
   const marketplaceName = config.marketplaceName;
-  const { onMakeCounterOffer, ...restOfProps } = props;
+  const { onMakeCounterOffer, isProvider, ...restOfProps } = props;
 
   return (
     <>
@@ -85,7 +96,12 @@ const CounterOfferInfo = props => {
       <p className={css.modalMessage}>
         <FormattedMessage id="MakeCounterOfferModal.description" values={{ marketplaceName }} />
       </p>
-      <MakeCounterOfferForm onSubmit={onMakeCounterOffer} {...restOfProps} />
+      {isProvider ? (
+        <p className={css.modalRecommendation}>
+          <FormattedMessage id="MakeCounterOfferModal.providerRecommendation" />
+        </p>
+      ) : null}
+      <MakeCounterOfferForm onSubmit={onMakeCounterOffer} isProvider={isProvider} {...restOfProps} />
     </>
   );
 };
@@ -125,6 +141,7 @@ const MakeCounterOfferModal = props => {
     counterOfferError,
     currencyConfig,
     currentOffer,
+    isProvider = false,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
 
@@ -148,6 +165,7 @@ const MakeCounterOfferModal = props => {
         counterOfferSubmitted={counterOfferSubmitted}
         intl={intl}
         currencyConfig={currencyConfig}
+        isProvider={isProvider}
       />
     </Modal>
   );

@@ -13,7 +13,7 @@ import {
  * @param {*} processInfo  details about process
  */
 export const getStateDataForBookingProcess = (txInfo, processInfo) => {
-  const { transaction, transactionRole, nextTransitions } = txInfo;
+  const { transaction, transactionRole, nextTransitions, onOpenMakeCounterOfferModal } = txInfo;
   const isProviderBanned = transaction?.provider?.attributes?.banned;
   const isCustomerBanned = transaction?.provider?.attributes?.banned;
   const _ = CONDITIONAL_RESOLVER_WILDCARD;
@@ -26,6 +26,7 @@ export const getStateDataForBookingProcess = (txInfo, processInfo) => {
     isCustomer,
     actionButtonProps,
     leaveReviewProps,
+    requestPaymentProps,
   } = processInfo;
 
   return new ConditionalResolver([processState, transactionRole])
@@ -36,10 +37,100 @@ export const getStateDataForBookingProcess = (txInfo, processInfo) => {
       const requestAfterInquiry = transitions.REQUEST_PAYMENT_AFTER_INQUIRY;
       const hasCorrectNextTransition = transitionNames.includes(requestAfterInquiry);
       const showOrderPanel = !isProviderBanned && hasCorrectNextTransition;
-      return { processName, processState, showOrderPanel };
+      return {
+        processName,
+        processState,
+        showOrderPanel: false,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+      };
     })
     .cond([states.INQUIRY, PROVIDER], () => {
-      return { processName, processState, showDetailCardHeadings: true };
+      const overwritesForCounterOffer = {
+        onAction: onOpenMakeCounterOfferModal,
+      };
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(
+          transitions.MAKE_OFFER,
+          PROVIDER,
+          overwritesForCounterOffer
+        ),
+      };
+    })
+    .cond([states.OFFER_PENDING, CUSTOMER], () => {
+      const overwritesForCounterOffer = {
+        onAction: onOpenMakeCounterOfferModal,
+      };
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.CUSTOMER_ACCEPT_OFFER, CUSTOMER),
+        secondaryButtonProps: actionButtonProps(
+          transitions.CUSTOMER_COUNTER_OFFER,
+          CUSTOMER,
+          overwritesForCounterOffer
+        ),
+      };
+    })
+    .cond([states.OFFER_PENDING, PROVIDER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+      };
+    })
+    .cond([states.CUSTOMER_OFFER_PENDING, CUSTOMER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+      };
+    })
+    .cond([states.CUSTOMER_OFFER_PENDING, PROVIDER], () => {
+      const overwritesForCounterOffer = {
+        onAction: onOpenMakeCounterOfferModal,
+      };
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.PROVIDER_ACCEPT_OFFER, PROVIDER),
+        secondaryButtonProps: actionButtonProps(
+          transitions.PROVIDER_COUNTER_OFFER,
+          PROVIDER,
+          overwritesForCounterOffer
+        ),
+      };
+    })
+    .cond([states.OFFER_ACCEPTED, CUSTOMER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+        showActionButtons: true,
+        primaryButtonProps: requestPaymentProps,
+      };
+    })
+    .cond([states.OFFER_ACCEPTED, PROVIDER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showExtraInfo: true,
+      };
     })
     .cond([states.PREAUTHORIZED, CUSTOMER], () => {
       return { processName, processState, showDetailCardHeadings: true, showExtraInfo: true };

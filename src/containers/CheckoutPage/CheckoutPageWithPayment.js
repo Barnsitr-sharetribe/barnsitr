@@ -128,6 +128,9 @@ const getOrderParams = (
 
   const customerDefaultMessageMaybe = customerDefaultMessage ? { customerDefaultMessage } : {};
 
+  const offer = pageData.orderData?.offer;
+  const offerMaybe = offer ? { offer } : {};
+
   const protectedDataMaybe = {
     protectedData: {
       ...getTransactionTypeData(listingType, unitType, config),
@@ -157,6 +160,7 @@ const getOrderParams = (
     ...priceVariantNameMaybe,
     ...protectedDataMaybe,
     ...optionalPaymentParams,
+    ...offerMaybe,
   };
   return orderParams;
 };
@@ -180,7 +184,9 @@ const fetchSpeculatedTransactionIfNeeded = (orderParams, pageData, fetchSpeculat
     const processAlias = pageData.listing.attributes.publicData?.transactionProcessAlias;
     const transactionId = tx ? tx.id : null;
     const isInquiryInPaymentProcess =
-      tx?.attributes?.lastTransition === process.transitions.INQUIRE;
+      tx?.attributes?.lastTransition === process.transitions.INQUIRE ||
+      tx?.attributes?.lastTransition === process.transitions.CUSTOMER_ACCEPT_OFFER ||
+      tx?.attributes?.lastTransition === process.transitions.PROVIDER_ACCEPT_OFFER;
     const resolvedProcessName = resolveLatestProcessName(processName);
     const isOfferPendingInNegotiationProcess =
       resolvedProcessName === NEGOTIATION_PROCESS_NAME &&

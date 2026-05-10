@@ -97,6 +97,7 @@ export const getStateData = (params, process) => {
     sendReviewInProgress,
     sendReviewError,
     onOpenReviewModal,
+    handleRequestPaymentAfterInquiry,
     //onOpenRequestChangesModal,
     //onOpenMakeCounterOfferModal,
     //onCheckoutRedirect,
@@ -135,6 +136,18 @@ export const getStateData = (params, process) => {
     actionButtonTranslationErrorId: 'TransactionPage.leaveReview.actionError',
   });
 
+  const getRequestPaymentProps = getActionButtonPropsMaybe({
+    processName,
+    transitionName: 'requestPaymentAfterInquiry',
+    transactionRole,
+    intl,
+    inProgress: sendReviewInProgress,
+    transitionError: sendReviewError,
+    onAction: handleRequestPaymentAfterInquiry,
+    actionButtonTranslationId: 'TransactionPage.requestPaymentAfterInquiry.actionButton',
+    actionButtonTranslationErrorId: 'TransactionPage.requestPaymentAfterInquiry.actionError',
+  });
+
   const processInfo = () => {
     const { getState, states, transitions } = process;
     const processState = getState(transaction);
@@ -146,6 +159,7 @@ export const getStateData = (params, process) => {
       isCustomer,
       actionButtonProps: getActionButtonProps,
       leaveReviewProps: getLeaveReviewProps,
+      requestPaymentProps: getRequestPaymentProps,
     };
   };
 

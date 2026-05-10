@@ -17,14 +17,52 @@
     {:name :action/stripe-create-payment-intent}],
    :to :state/pending-payment,
    :privileged? true}
+  {:name :transition/make-offer,
+   :actor :actor.role/provider,
+   :actions
+   [{:name :action/privileged-set-line-items}
+    {:name :action/update-protected-data}
+    {:name :action/privileged-update-metadata}],
+   :privileged? true, 
+   :from :state/inquiry,
+   :to :state/offer-pending}
+  {:name :transition/customer-counter-offer,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/privileged-set-line-items}
+    {:name :action/update-protected-data}
+    {:name :action/privileged-update-metadata}],
+   :privileged? true, 
+   :from :state/offer-pending,
+   :to :state/customer-offer-pending} 
+  {:name :transition/provider-counter-offer,
+   :actor :actor.role/provider,
+   :actions
+   [{:name :action/privileged-set-line-items}
+    {:name :action/update-protected-data}
+    {:name :action/privileged-update-metadata}],
+   :privileged? true, 
+   :from :state/customer-offer-pending,
+   :to :state/offer-pending}  
+  {:name :transition/customer-accept-offer,
+   :actor :actor.role/customer,
+   :actions
+   [{:name :action/update-protected-data}],
+   :from :state/offer-pending,
+   :to :state/offer-accepted} 
+  {:name :transition/provider-accept-offer,
+   :actor :actor.role/provider,
+   :actions
+   [{:name :action/update-protected-data}],
+   :from :state/customer-offer-pending,
+   :to :state/offer-accepted} 
   {:name :transition/request-payment-after-inquiry,
    :actor :actor.role/customer,
    :actions
    [{:name :action/update-protected-data}
-    {:name :action/create-pending-booking, :config {:type :time}}
     {:name :action/privileged-set-line-items}
     {:name :action/stripe-create-payment-intent}],
-   :from :state/inquiry,
+   :from :state/offer-accepted,
    :to :state/pending-payment,
    :privileged? true}
   {:name :transition/expire-payment,

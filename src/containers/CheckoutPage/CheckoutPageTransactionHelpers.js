@@ -213,7 +213,9 @@ export const processCheckoutWithPayment = (orderParams, extraPaymentParams) => {
       storedTx.attributes.state === `state/${process.states.OFFER_PENDING}`;
 
     const requestTransition =
-      storedTx?.attributes?.lastTransition === process.transitions.INQUIRE
+      storedTx?.attributes?.lastTransition === process.transitions.INQUIRE ||
+      storedTx?.attributes?.lastTransition === process.transitions.CUSTOMER_ACCEPT_OFFER ||
+      storedTx?.attributes?.lastTransition === process.transitions.PROVIDER_ACCEPT_OFFER
         ? process.transitions.REQUEST_PAYMENT_AFTER_INQUIRY
         : isOfferPendingInNegotiationProcess
         ? process.transitions.REQUEST_PAYMENT_TO_ACCEPT_OFFER
