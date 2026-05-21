@@ -8,9 +8,9 @@ const calculateDistance = async (origin, destination) => {
 
     const response = await axios.get(url);
     const distanceInMeters = response.data.routes[0].distance;
-    const distanceInKm = Math.round(distanceInMeters / 1000); // Convert meters to kilometers and round to nearest integer
+    const distanceInMiles = Math.round(distanceInMeters * 0.000621371); // Convert meters to miles and round to nearest integer
 
-    return distanceInKm;
+    return distanceInMiles;
   } catch (error) {
     console.error('Error calculating distance:', error);
     return null;
