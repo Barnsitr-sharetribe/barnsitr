@@ -541,6 +541,7 @@ const onPriceVariantChange = props => value => {
  */
 export const BookingDatesForm = props => {
   const { isWithinServiceArea } = useSelector(state => state.ListingPage);
+  const { isAuthenticated } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const history = useHistory();
   const {
@@ -658,6 +659,10 @@ export const BookingDatesForm = props => {
           : event => {
               event.preventDefault();
               event.stopPropagation();
+              if (!isAuthenticated) {
+                history.push('/signup', { from: history.location });
+                return;
+              }
               // Custom submit logic for listing page order panel
               // Form values are available via `values` in scope
               dispatch(

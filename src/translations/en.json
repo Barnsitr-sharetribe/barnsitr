@@ -1456,7 +1456,7 @@
   "TransactionPage.default-booking.customer.inquiry.extraInfo": "You can discuss the booking details with {providerName} in the chat and finalise the pricing.",
   "TransactionPage.default-booking.provider.transition-make-offer.actionError": "Oops, making an offer failed. Please try again.",
   "TransactionPage.default-booking.provider.transition-make-offer.actionButton": "Make offer",
-  "MakeCounterOfferModal.providerRecommendation": "BARNSITR recommends a minimum of $35 per drop-in visit",
+  "MakeCounterOfferModal.providerRecommendation": "BARNSITR recommends a minimum of $35 per day",
   "MakeCounterOfferForm.minPriceError": "Minimum offer amount is $35",
   "TransactionPage.ActivityFeed.default-booking.offer-pending": "{actor, select, you {You sent an offer of {negotiationOffer}.} other {{otherUsersName} sent an offer of {negotiationOffer}.}}",
   "TransactionPage.ActivityFeed.default-booking.customer-offer-pending": "{actor, select, you {You made a counter offer of {negotiationOffer}.} other {{otherUsersName} made a counter offer of {negotiationOffer}.}}",
