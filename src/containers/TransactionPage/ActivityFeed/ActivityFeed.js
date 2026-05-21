@@ -72,7 +72,6 @@ const Message = props => {
   const messageContent = message.attributes.content;
   const isImage = messageContent.includes('New image attached -');
   const isVideo = messageContent.includes('New video attached -');
-  
   let content;
   if (isImage || isVideo) {
     const mediaUrl = messageContent.split(`New ${isImage ? 'image' : 'video'} attached - `)[1];
@@ -119,7 +118,7 @@ const OwnMessage = props => {
   const messageContent = message.attributes.content;
   const isImage = messageContent.includes('New image attached -');
   const isVideo = messageContent.includes('New video attached -');
-  
+
   let content;
   if (isImage || isVideo) {
     const mediaUrl = messageContent.split(`New ${isImage ? 'image' : 'video'} attached - `)[1];
