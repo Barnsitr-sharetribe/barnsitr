@@ -297,7 +297,7 @@ export class TransactionPanelComponent extends Component {
               </div>
             ) : null}
 
-            {isProvider ? (
+            {isProvider && !protectedData?.isWithinServiceArea ? (
               <div className={css.serviceAreaAlert}>
                 <FormattedMessage id="TransactionPanel.serviceAreaMismatchAlert" />
               </div>
