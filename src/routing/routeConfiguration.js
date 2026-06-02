@@ -114,7 +114,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       ...authForPrivateMarketplace,
       component: SearchPage,
       loadData: pageDataLoadingAPI.SearchPage.loadData,
-      prioritizeMapLibraryLoading: isSearchPageWithMap,
+      prioritizeLibraryLoading: {
+        map: isSearchPageWithMap,
+      },
     },
     {
       path: '/s/:listingType',
@@ -122,7 +124,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       ...authForPrivateMarketplace,
       component: SearchPage,
       loadData: pageDataLoadingAPI.SearchPage.loadData,
-      prioritizeMapLibraryLoading: isSearchPageWithMap,
+      prioritizeLibraryLoading: {
+        map: isSearchPageWithMap,
+      },
     },
     {
       path: '/l',
@@ -135,7 +139,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       ...authForPrivateMarketplace,
       component: ListingPage,
       loadData: pageDataLoadingAPI.ListingPage.loadData,
-      prioritizeMapLibraryLoading: true,
+      prioritizeLibraryLoading: {
+        map: true,
+      },
     },
     {
       path: '/l/:slug/:id/make-offer',
@@ -158,6 +164,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       component: CheckoutPage,
       setInitialValues: pageDataLoadingAPI.CheckoutPage.setInitialValues,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
     {
       path: '/l/:slug/:id/:variant',
@@ -166,7 +175,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: ListingPage,
       loadData: pageDataLoadingAPI.ListingPage.loadData,
-      prioritizeMapLibraryLoading: true,
+      prioritizeLibraryLoading: {
+        map: true,
+      },
     },
     {
       path: '/l/new',
@@ -185,6 +196,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       component: EditListingPage,
       loadData: pageDataLoadingAPI.EditListingPage.loadData,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
     {
       path: '/l/:slug/:id/:type/:tab/:returnURLType',
@@ -192,6 +206,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       component: EditListingPage,
       loadData: pageDataLoadingAPI.EditListingPage.loadData,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
 
     // Canonical path should be after the `/l/new` path since they
@@ -202,7 +219,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       ...authForPrivateMarketplace,
       component: ListingPage,
       loadData: pageDataLoadingAPI.ListingPage.loadData,
-      prioritizeMapLibraryLoading: true,
+      prioritizeLibraryLoading: {
+        map: true,
+      },
     },
     {
       path: '/u',
@@ -352,6 +371,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: StripePayoutPage,
       loadData: pageDataLoadingAPI.StripePayoutPage.loadData,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
     {
       path: '/account/payments/:returnURLType',
@@ -360,6 +382,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: StripePayoutPage,
       loadData: pageDataLoadingAPI.StripePayoutPage.loadData,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
     {
       path: '/account/payment-methods',
@@ -368,6 +393,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: PaymentMethodsPage,
       loadData: pageDataLoadingAPI.PaymentMethodsPage.loadData,
+      prioritizeLibraryLoading: {
+        stripe: true,
+      },
     },
     {
       path: '/account/manage',
