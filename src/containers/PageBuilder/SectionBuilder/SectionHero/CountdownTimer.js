@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { NamedLink, PrimaryButton } from '../../../../components';
 import css from './CountdownTimer.module.css';
 
 const LAUNCH_DATE = new Date('2026-06-26T00:00:00');
@@ -52,6 +53,9 @@ const CountdownTimer = () => {
           <span className={css.caption}>Secs</span>
         </div>
       </div>
+      <NamedLink name="SignupPage" className={css.signupLink}>
+        <PrimaryButton className={css.signupButton}>Sign Up</PrimaryButton>
+      </NamedLink>
     </div>
   );
 };
