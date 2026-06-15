@@ -99,6 +99,8 @@ const LoadingSpinner = () => {
  * @param {Object<string,FieldComponentConfig>} props.options.fieldComponents custom field components
  * @returns {JSX.Element} page component
  */
+const COUNTDOWN_EXPIRY = new Date('2026-06-26T00:00:00');
+
 const PageBuilder = props => {
   const {
     pageAssetsData,
@@ -109,6 +111,7 @@ const PageBuilder = props => {
     options,
     currentPage,
     featuredListings,
+    isLandingPage,
     ...pageProps
   } = props;
 
@@ -122,11 +125,30 @@ const PageBuilder = props => {
   const { sections = [], meta = {} } = pageAssetsData || {};
   const pageMetaProps = getMetadata(meta, schemaType, options?.fieldComponents);
 
+  const showTemporaryHero = isLandingPage && Date.now() < COUNTDOWN_EXPIRY.getTime();
+
+  // When showTemporaryHero: keep only the first section, strip its content
+  // (title/description/callToAction/blocks) but keep appearance (background image + overlay).
+  // SectionHero renders the countdown timer when showCountdown=true.
+  const resolvedSections = showTemporaryHero
+    ? [
+        {
+          ...sections[0],
+          title: null,
+          description: null,
+          callToAction: null,
+          blocks: [],
+          showCountdown: true,
+        },
+      ]
+    : sections;
+
   const layoutAreas = `
     topbar
     main
     footer
   `;
+
   return (
     <StaticPage {...pageMetaProps} {...pageProps}>
       <LayoutComposer areas={layoutAreas} className={css.layout}>
@@ -141,7 +163,10 @@ const PageBuilder = props => {
                 {sections.length === 0 && inProgress ? (
                   <LoadingSpinner />
                 ) : (
-                  <SectionBuilder sections={sections} options={{ ...options, featuredListings }} />
+                  <SectionBuilder
+                    sections={resolvedSections}
+                    options={{ ...options, featuredListings }}
+                  />
                 )}
               </Main>
               <Footer>
