@@ -76,6 +76,8 @@ import {
   fetchMoreMessages,
   fetchTimeSlots,
   fetchTransactionLineItems,
+  fetchTransactionThunk,
+  fetchMessagesThunk,
 } from './TransactionPage.duck';
 import css from './TransactionPage.module.css';
 import { getCurrentUserTypeRoles, hasPermissionToViewData } from '../../util/userHelpers.js';
@@ -281,6 +283,17 @@ export const TransactionPageComponent = props => {
   }, []);
 
   const config = useConfiguration();
+
+  useEffect(() => {
+    const { transaction, transactionRole } = props;
+    if (!transaction?.id || !transactionRole || !mounted) return;
+
+    const interval = setInterval(() => {
+      props.onRefreshData(transaction.id, transactionRole, config);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [props.transaction?.id?.uuid, props.transactionRole, mounted]);
+
   const routeConfiguration = useRouteConfiguration();
   const intl = useIntl();
   const {
@@ -311,6 +324,7 @@ export const TransactionPageComponent = props => {
     nextTransitions,
     callSetInitialValues,
     onInitializeCardPaymentData,
+    onRefreshData,
     ...restOfProps
   } = props;
 
@@ -1034,15 +1048,16 @@ const mapDispatchToProps = dispatch => {
       dispatch(fetchTransactionLineItems(orderData, listingId, isOwnListing)), // for OrderPanel
     onFetchTimeSlots: (listingId, start, end, timeZone, options) =>
       dispatch(fetchTimeSlots(listingId, start, end, timeZone, options)), // for OrderPanel
+    onRefreshData: (txId, txRole, config) => {
+      dispatch(fetchTransactionThunk({ id: txId, txRole, config }));
+      dispatch(fetchMessagesThunk({ txId, page: 1, config }));
+    },
   };
 };
 
 const TransactionPage = compose(
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(TransactionPageComponent);
 
 export default TransactionPage;

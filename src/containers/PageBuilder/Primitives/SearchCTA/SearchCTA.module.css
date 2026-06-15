@@ -6,11 +6,9 @@
   height: 100%;
   width: 100%;
   min-height: 40px;
-  padding-bottom: 8px;
-  padding-top: 8px;
+  padding: 4px 8px;
   font-size: 16px;
   @media (--viewportLarge) {
-    padding-bottom: 0;
     padding: 0;
     color: var(--colorGrey300);
   }
@@ -31,11 +29,12 @@
   color: var(--colorGrey500);
   border-radius: 100px;
   box-shadow: var(--boxShadowPopup);
-  width: calc(100vw - 83px);
-  padding: 0 8px 8px 8px;
+  width: calc(100vw - 48px);
+  padding: 6px 6px 6px 8px;
   margin-top: 40px;
   @media (--viewportMedium) {
     width: 576px;
+    padding: 8px;
   }
   @media (--viewportLarge) {
     width: 100%;
@@ -90,8 +89,12 @@
   }
 }
 
-/* applies in mobile styles, we specify that there should always be just one column so the items stack in mobile view*/
-.gridCol1,
+/* Single field: always side-by-side (input + button inline) */
+.gridCol1 {
+  grid-template-columns: 1fr auto;
+}
+
+/* Multi-field: stack on mobile */
 .gridCol2,
 .gridCol3,
 .gridCol4 {

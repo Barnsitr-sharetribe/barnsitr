@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import Field, { hasDataInFields } from '../../Field';
 
 import SectionContainer from '../SectionContainer';
+import CountdownTimer from './CountdownTimer';
 import css from './SectionHero.module.css';
 
 /**
@@ -46,6 +47,7 @@ const SectionHero = props => {
     appearance,
     callToAction,
     options,
+    showCountdown,
   } = props;
 
   // If external mapping has been included for fields
@@ -63,6 +65,7 @@ const SectionHero = props => {
       appearance={appearance}
       options={fieldOptions}
     >
+      {showCountdown ? <CountdownTimer /> : null}
       {hasHeaderFields ? (
         <header className={defaultClasses.sectionDetails}>
           <Field data={title} className={defaultClasses.title} options={fieldOptions} />
