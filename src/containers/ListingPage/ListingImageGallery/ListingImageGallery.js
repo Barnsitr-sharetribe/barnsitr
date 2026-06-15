@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import ReactImageGallery from 'react-image-gallery';
+import { useDispatch } from 'react-redux';
 
 import { propTypes } from '../../../util/types';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
+import { manageDisableScrolling } from '../../../ducks/ui.duck';
+import {
+  facebookIcon,
+  instagramIcon,
+  linkedinIcon,
+  pinterestIcon,
+  tiktokIcon,
+  xIcon,
+} from '../../PageBuilder/Primitives/Link/Icons';
 import {
   AspectRatioWrapper,
   Button,
   IconClose,
   IconArrowHead,
+  Modal,
+  PrimaryButtonInline,
   ResponsiveImage,
   FavoriteButton,
 } from '../../../components';
@@ -25,6 +37,114 @@ const IMAGE_GALLERY_OPTIONS = {
   showPlayButton: false,
   disableThumbnailScroll: true,
 };
+const SHARE_MODAL_ID = 'ListingImageGallery.shareModal';
+
+const ShareModal = ({ isOpen, onClose, url, title, onManageDisableScrolling }) => {
+  const [copied, setCopied] = useState(false);
+  const [copiedPlatform, setCopiedPlatform] = useState(null);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleCopyForPlatform = name => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedPlatform(name);
+      setTimeout(() => setCopiedPlatform(null), 2000);
+    });
+  };
+
+  const platforms = [
+    {
+      name: 'Facebook',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      Icon: facebookIcon,
+      color: '#1877F2',
+    },
+    {
+      name: 'X',
+      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+      Icon: xIcon,
+      color: '#000000',
+    },
+    {
+      name: 'LinkedIn',
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      Icon: linkedinIcon,
+      color: '#0A66C2',
+    },
+    {
+      name: 'Pinterest',
+      href: `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(title)}`,
+      Icon: pinterestIcon,
+      color: '#E60023',
+    },
+  ];
+
+  return (
+    <Modal
+      id={SHARE_MODAL_ID}
+      isOpen={isOpen}
+      onClose={onClose}
+      onManageDisableScrolling={onManageDisableScrolling}
+      usePortal
+    >
+      <div className={css.shareModalContent}>
+        <h3 className={css.shareModalTitle}>Share profile</h3>
+        <div className={css.sharePlatforms}>
+          {platforms.map(p => {
+            const iconNode = p.Icon ? <p.Icon /> : p.icon;
+            if (p.copyOnly) {
+              return (
+                <button
+                  key={p.name}
+                  className={css.sharePlatformButton}
+                  style={{ '--platform-color': p.color }}
+                  onClick={() => handleCopyForPlatform(p.name)}
+                  title={`Copy link to share on ${p.name}`}
+                >
+                  <span className={css.sharePlatformIcon}>{iconNode}</span>
+                  <span className={css.sharePlatformName}>
+                    {copiedPlatform === p.name ? 'Copied!' : p.name}
+                  </span>
+                </button>
+              );
+            }
+            return (
+              <a
+                key={p.name}
+                href={p.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={css.sharePlatformButton}
+                style={{ '--platform-color': p.color }}
+              >
+                <span className={css.sharePlatformIcon}>{iconNode}</span>
+                <span className={css.sharePlatformName}>{p.name}</span>
+              </a>
+            );
+          })}
+        </div>
+        <div className={css.shareCopyRow}>
+          <input
+            type="text"
+            readOnly
+            value={url}
+            className={css.shareCopyInput}
+            onClick={e => e.target.select()}
+          />
+          <PrimaryButtonInline className={css.shareCopyButton} onClick={handleCopy}>
+            {copied ? 'Copied!' : 'Copy'}
+          </PrimaryButtonInline>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
 const MAX_LANDSCAPE_ASPECT_RATIO = 2; // 2:1
 const MAX_PORTRAIT_ASPECT_RATIO = 4 / 3;
 
@@ -64,8 +184,17 @@ const getFirstImageAspectRatio = (firstImage, scaledVariant) => {
  */
 const ListingImageGallery = props => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
+  const dispatch = useDispatch();
   const intl = useIntl();
   const { rootClassName, className, images, imageVariants, thumbnailVariants, listing } = props;
+
+  const onManageDisableScrolling = (componentId, disableScrolling) => {
+    dispatch(manageDisableScrolling(componentId, disableScrolling));
+  };
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareTitle = listing?.attributes?.title || '';
   const thumbVariants = thumbnailVariants || imageVariants;
   // imageVariants are scaled variants.
   const { aspectWidth, aspectHeight } = getFirstImageAspectRatio(images?.[0], imageVariants[0]);
@@ -158,6 +287,19 @@ const ListingImageGallery = props => {
       </Button>
     ) : (
       <>
+        <button
+          className={css.shareButton}
+          onClick={() => setShareModalOpen(true)}
+          title="Share listing"
+        >
+          <svg viewBox="0 0 24 24" className={css.shareButtonIcon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        </button>
         <FavoriteButton listingId={listing.id} listingAuthor={listing.author} isVisible={true} />
         <button className={css.openFullscreen} onClick={onClick}>
           <FormattedMessage
@@ -176,17 +318,26 @@ const ListingImageGallery = props => {
   const classes = classNames(rootClassName || css.root, className);
 
   return (
-    <ReactImageGallery
-      additionalClass={classes}
-      items={items}
-      renderItem={renderItem}
-      renderThumbInner={renderThumbInner}
-      onScreenChange={onScreenChange}
-      renderLeftNav={renderLeftNav}
-      renderRightNav={renderRightNav}
-      renderFullscreenButton={renderFullscreenButton}
-      {...IMAGE_GALLERY_OPTIONS}
-    />
+    <>
+      <ReactImageGallery
+        additionalClass={classes}
+        items={items}
+        renderItem={renderItem}
+        renderThumbInner={renderThumbInner}
+        onScreenChange={onScreenChange}
+        renderLeftNav={renderLeftNav}
+        renderRightNav={renderRightNav}
+        renderFullscreenButton={renderFullscreenButton}
+        {...IMAGE_GALLERY_OPTIONS}
+      />
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        url={shareUrl}
+        title={shareTitle}
+        onManageDisableScrolling={onManageDisableScrolling}
+      />
+    </>
   );
 };
 
