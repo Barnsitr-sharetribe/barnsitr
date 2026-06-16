@@ -140,6 +140,7 @@ const PageBuilder = props => {
           blocks: [],
           showCountdown: true,
         },
+        sections[1],
       ]
     : sections;
 
