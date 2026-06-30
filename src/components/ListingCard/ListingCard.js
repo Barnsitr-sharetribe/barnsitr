@@ -261,7 +261,7 @@ export const ListingCard = props => {
           </ul>
         ) : null}
 
-        <div className={css.divider} />
+        {/* <div className={css.divider} /> */}
 
         <div className={css.footerRow}>
           {showPrice ? (
