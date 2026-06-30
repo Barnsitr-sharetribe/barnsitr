@@ -240,6 +240,10 @@
 .locationText {
   composes: marketplaceTinyFontStyles from global;
   color: var(--colorGrey600);
+
+  /* marketplaceTinyFontStyles adds vertical margins that shove the text below
+     the icon; reset them so the text aligns with the pin. */
+  margin: 0;
   line-height: 1.4;
 }
 

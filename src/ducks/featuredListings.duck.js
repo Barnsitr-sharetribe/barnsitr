@@ -55,6 +55,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
         include: ['images', 'author', 'author.profileImage'],
         'fields.listing': [
           'title',
+          'description',
           'geolocation',
           'price',
           'deleted',
@@ -67,6 +68,7 @@ const fetchFeaturedListingsPayloadCreator = async (arg, thunkAPI) => {
           'publicData.shippingEnabled',
           'publicData.priceVariationsEnabled',
           'publicData.priceVariants',
+          'publicData.location'
         ],
         'fields.image': [
           'variants.listing-card',

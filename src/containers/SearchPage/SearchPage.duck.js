@@ -435,6 +435,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       include: ['author', 'images', 'author.profileImage'],
       'fields.listing': [
         'title',
+        'description',
         'geolocation',
         'price',
         'deleted',
@@ -449,6 +450,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
         'publicData.shippingEnabled',
         'publicData.priceVariationsEnabled',
         'publicData.priceVariants',
+        'publicData.location',
       ],
       'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
       'fields.image': [
